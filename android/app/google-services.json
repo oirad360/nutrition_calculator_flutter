@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "704960320262",
+    "project_id": "nutrition-calculator-flutter",
+    "storage_bucket": "nutrition-calculator-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:704960320262:android:1ab60c728f0c02d6828487",
+        "android_client_info": {
+          "package_name": "com.example.nutrition_calculator_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8GAjuPoEc-JKoebI-458No5uYQHj1nok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
