@@ -13,6 +13,7 @@ class _MyDrawerState extends State<MyDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: StreamBuilder(
         stream: AuthService().userChanges,
         builder: (context, snapshot) {
@@ -21,12 +22,12 @@ class _MyDrawerState extends State<MyDrawer> {
             children: [
               DrawerHeader(
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                child: Text(Constants.appTitle, style: Theme.of(context).textTheme.titleLarge),
+                child: Center(child: Text(Constants.appTitle, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 30))),
               ),
               if (!snapshot.hasData) const ListTile(
-                title: Text('Login'),
+                title: Text('Login', style: TextStyle(fontSize: 20)),
               )
             ],
           );
