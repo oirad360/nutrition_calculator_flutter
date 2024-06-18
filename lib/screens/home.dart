@@ -31,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: Builder(
           builder: (context) {
             return IconButton(
-              icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.primary),
+              icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.secondary),
               onPressed: () {
                 Scaffold.of(context).openDrawer();
               },
