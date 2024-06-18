@@ -58,7 +58,7 @@ class _AuthPageState extends State<AuthPage> {
           },
         ),
       ),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(selectedTile: SelectedTile.accedi),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +135,7 @@ class _AuthPageState extends State<AuthPage> {
                       ),
                     ),
                     ElevatedButton(onPressed: () {
-                      if(_formKey.currentState!.validate()) {
+                      if(_formKey.currentState!.validate()) { // TODO: fix navigation (redirect to home page)
                         _formKey.currentState!.save();
                         _isLogin ?
                         signIn(email: _data['email']['value'], password: _data['password']['value']) :

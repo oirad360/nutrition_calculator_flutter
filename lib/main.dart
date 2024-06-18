@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             );
-          } else if (snapshot.hasData) {
+          } else if (snapshot.hasData) { // TODO: fix navigation (always return MyHomePage)
             return const MyHomePage(title: Constants.appTitle);
           } else {
             return const AuthPage();

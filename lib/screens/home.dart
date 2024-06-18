@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
 
+import '../constants.dart';
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -39,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
       ),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(selectedTile: SelectedTile.home),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

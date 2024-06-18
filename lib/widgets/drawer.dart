@@ -2,9 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/auth.dart';
 import 'package:nutrition_calculator_flutter/constants.dart';
+import 'package:nutrition_calculator_flutter/screens/home.dart';
+
+import '../screens/auth_page.dart';
 
 class MyDrawer extends StatefulWidget {
-  const MyDrawer({super.key});
+  MyDrawer({super.key, this.selectedTile});
+
+  String? selectedTile;
 
   @override
   State<MyDrawer> createState() => _MyDrawerState();
@@ -45,8 +50,23 @@ class _MyDrawerState extends State<MyDrawer> {
                   )
                 ),
               ),
-              if (!snapshot.hasData) const ListTile(
-                title: Text('Accedi', style: TextStyle(fontSize: 20)),
+              ListTile(
+                title: const Text('Home', style: TextStyle(fontSize: 20)),
+                selected: widget.selectedTile == SelectedTile.home,
+                onTap: () {
+                  if (widget.selectedTile != SelectedTile.home) {
+                    Navigator.push(context, MaterialPageRoute<void>(builder: (context) => const MyHomePage(title: Constants.appTitle)));
+                  }
+                },
+              ),
+              if (!snapshot.hasData) ListTile(
+                title: const Text('Accedi', style: TextStyle(fontSize: 20)),
+                selected: widget.selectedTile == SelectedTile.accedi,
+                onTap: () {
+                  if (widget.selectedTile != SelectedTile.accedi) {
+                    Navigator.push(context, MaterialPageRoute<void>(builder: (context) => const AuthPage()));
+                  }
+                },
               ) else ListTile(
                 title: const Text('Esci', style: TextStyle(fontSize: 20)),
                 onTap: () {
