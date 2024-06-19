@@ -3,6 +3,6 @@ class Constants {
 }
 
 class SelectedTile {
-  static const String accedi = 'accedi';
+  static const String auth = 'auth';
   static const String home = 'home';
 }

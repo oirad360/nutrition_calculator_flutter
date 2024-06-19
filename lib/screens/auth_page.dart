@@ -58,7 +58,7 @@ class _AuthPageState extends State<AuthPage> {
           },
         ),
       ),
-      drawer: MyDrawer(selectedTile: SelectedTile.accedi),
+      drawer: MyDrawer(selectedTile: SelectedTile.auth),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -135,11 +135,11 @@ class _AuthPageState extends State<AuthPage> {
                       ),
                     ),
                     ElevatedButton(onPressed: () {
-                      if(_formKey.currentState!.validate()) { // TODO: fix navigation (redirect to home page)
+                      if(_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
                         _isLogin ?
-                        signIn(email: _data['email']['value'], password: _data['password']['value']) :
-                        signUp(email: _data['email']['value'], password: _data['password']['value']);
+                        signIn(email: _data['email']['value'], password: _data['password']['value']).then((value) => Navigator.pushNamed(context, '/home')) :
+                        signUp(email: _data['email']['value'], password: _data['password']['value']).then((value) => Navigator.pushNamed(context, '/home'));
                       }
                     }, child: Text(_isLogin ? 'Accedi' : 'Registrati')),
                     TextButton(

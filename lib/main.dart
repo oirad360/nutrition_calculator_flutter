@@ -5,6 +5,7 @@ import 'package:nutrition_calculator_flutter/constants.dart';
 import 'firebase_options.dart';
 import 'screens/home.dart';
 import 'screens/auth_page.dart';
+import 'router.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,13 +52,14 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             );
-          } else if (snapshot.hasData) { // TODO: fix navigation (always return MyHomePage)
+          } else if (snapshot.hasData) {
             return const MyHomePage(title: Constants.appTitle);
           } else {
-            return const AuthPage();
+            return const MyHomePage(title: 'loggati');
           }
         },
       ),
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }

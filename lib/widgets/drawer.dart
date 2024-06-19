@@ -55,16 +55,16 @@ class _MyDrawerState extends State<MyDrawer> {
                 selected: widget.selectedTile == SelectedTile.home,
                 onTap: () {
                   if (widget.selectedTile != SelectedTile.home) {
-                    Navigator.push(context, MaterialPageRoute<void>(builder: (context) => const MyHomePage(title: Constants.appTitle)));
+                    Navigator.pushNamed(context, '/home', arguments: snapshot.hasData ? Constants.appTitle : 'loggati');
                   }
                 },
               ),
               if (!snapshot.hasData) ListTile(
                 title: const Text('Accedi', style: TextStyle(fontSize: 20)),
-                selected: widget.selectedTile == SelectedTile.accedi,
+                selected: widget.selectedTile == SelectedTile.auth,
                 onTap: () {
-                  if (widget.selectedTile != SelectedTile.accedi) {
-                    Navigator.push(context, MaterialPageRoute<void>(builder: (context) => const AuthPage()));
+                  if (widget.selectedTile != SelectedTile.auth) {
+                    Navigator.pushNamed(context, '/auth');
                   }
                 },
               ) else ListTile(
