@@ -2,9 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/auth.dart';
 import 'package:nutrition_calculator_flutter/constants.dart';
-import 'package:nutrition_calculator_flutter/screens/home.dart';
-
-import '../screens/auth_page.dart';
 
 class MyDrawer extends StatefulWidget {
   MyDrawer({super.key, this.selectedTile});
@@ -55,6 +52,7 @@ class _MyDrawerState extends State<MyDrawer> {
                 selected: widget.selectedTile == SelectedTile.home,
                 onTap: () {
                   if (widget.selectedTile != SelectedTile.home) {
+                    Navigator.pop(context); // must pop before pushing a new screen to close the drawer
                     Navigator.pushNamed(context, '/home', arguments: snapshot.hasData ? Constants.appTitle : 'loggati');
                   }
                 },
@@ -64,6 +62,7 @@ class _MyDrawerState extends State<MyDrawer> {
                 selected: widget.selectedTile == SelectedTile.auth,
                 onTap: () {
                   if (widget.selectedTile != SelectedTile.auth) {
+                    Navigator.pop(context); //must pop before pushing a new screen to close the drawer
                     Navigator.pushNamed(context, '/auth');
                   }
                 },

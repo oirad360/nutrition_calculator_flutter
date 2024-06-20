@@ -4,7 +4,6 @@ import 'package:nutrition_calculator_flutter/auth.dart';
 import 'package:nutrition_calculator_flutter/constants.dart';
 import 'firebase_options.dart';
 import 'screens/home.dart';
-import 'screens/auth_page.dart';
 import 'router.dart';
 
 void main() async{
