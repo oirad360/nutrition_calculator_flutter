@@ -13,9 +13,11 @@ class MyDrawer extends StatefulWidget {
 }
 
 class _MyDrawerState extends State<MyDrawer> {
+  final AuthService _authService = AuthService();
+
   Future<void> signOut() async {
     try {
-      await AuthService().signOut();
+      await _authService.signOut();
     } on FirebaseAuthException catch (e) {
       print(e);
     }
@@ -25,7 +27,7 @@ class _MyDrawerState extends State<MyDrawer> {
     return Drawer(
       backgroundColor: Colors.white,
       child: StreamBuilder(
-        stream: AuthService().userChanges,
+        stream: _authService.userChanges,
         builder: (context, snapshot) {
           return ListView(
             padding: EdgeInsets.zero,
@@ -41,7 +43,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(Constants.appTitle, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 30)),
-                        if (snapshot.hasData) Text('Benvenuto ${AuthService().user!.email}!', style: TextStyle(color: Theme.of(context).colorScheme.secondary),)
+                        if (snapshot.hasData) Text('Benvenuto ${_authService.user!.email}!', style: TextStyle(color: Theme.of(context).colorScheme.secondary),)
                       ],
                     ),
                   )

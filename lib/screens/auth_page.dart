@@ -27,13 +27,14 @@ class _AuthPageState extends State<AuthPage> {
   bool _isLogin = true;
   String? _errorMessage;
   bool _showLoading = false;
+  final AuthService _authService = AuthService();
 
   Future<Map<String, String?>> signIn({required String email, required String password}) async {
     setState(() {
       _showLoading = true;
     });
     try {
-      await AuthService().signInWithEmailAndPassword(email: email, password: password);
+      await _authService.signInWithEmailAndPassword(email: email, password: password);
       return {
         "res": Constants.OK
       };
@@ -53,7 +54,7 @@ class _AuthPageState extends State<AuthPage> {
       _showLoading = true;
     });
     try {
-      await AuthService().createUserWithEmailAndPassword(email: email, password: password);
+      await _authService.createUserWithEmailAndPassword(email: email, password: password);
       return {
         "res": Constants.OK
       };
