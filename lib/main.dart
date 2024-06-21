@@ -51,10 +51,8 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             );
-          } else if (snapshot.hasData) {
-            return const MyHomePage(title: Constants.appTitle);
           } else {
-            return const MyHomePage(title: 'loggati');
+            return const MyHomePage(title: Constants.appTitle);
           }
         },
       ),

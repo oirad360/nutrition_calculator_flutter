@@ -26,14 +26,21 @@ class _AuthPageState extends State<AuthPage> {
   };
   bool _isLogin = true;
   String? _errorMessage;
+  bool _showLoading = false;
 
   Future<Map<String, String?>> signIn({required String email, required String password}) async {
+    setState(() {
+      _showLoading = true;
+    });
     try {
       await AuthService().signInWithEmailAndPassword(email: email, password: password);
       return {
         "res": Constants.OK
       };
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        _showLoading = false;
+      });
       return {
         "res": Constants.KO,
         "code": e.code
@@ -42,12 +49,18 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<Map<String, String?>> signUp({required String email, required String password}) async {
+    setState(() {
+      _showLoading = true;
+    });
     try {
       await AuthService().createUserWithEmailAndPassword(email: email, password: password);
       return {
         "res": Constants.OK
       };
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        _showLoading = false;
+      });
       return {
         "res": Constants.KO,
         "code": e.code
@@ -150,49 +163,61 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                       ),
                       if(_errorMessage != null) Text(_errorMessage!, style: TextStyle(color: Theme.of(context).colorScheme.secondary), textAlign: TextAlign.center),
-                      ElevatedButton(onPressed: () {
-                        if(_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          _isLogin ?
-                          signIn(email: _data['email']['value'], password: _data['password']['value']).then((value) => {
-                            if (value['res'] == Constants.OK) {
-                              Navigator.popUntil(context, (route) => false),
-                              Navigator.pushNamed(context, '/home')
-                            } else {
+                      if(_showLoading) CircularProgressIndicator(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        color: Colors.white,
+                      ) else Column(
+                        children: [
+                          ElevatedButton(onPressed: () {
+                            if(_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
                               setState(() {
-                                _errorMessage = Constants.authErrorMessage[value['code']];
-                              })
+                                _showLoading = true;
+                              });
+                              _isLogin ?
+                              signIn(email: _data['email']['value'], password: _data['password']['value']).then((value) => {
+                                if (value['res'] == Constants.OK) {
+                                  Navigator.popUntil(context, (route) => false),
+                                  Navigator.pushNamed(context, '/home')
+                                } else {
+                                  setState(() {
+                                    _errorMessage = Constants.authErrorMessage[value['code']];
+                                    _showLoading = false;
+                                  })
+                                }
+                              }) :
+                              signUp(email: _data['email']['value'], password: _data['password']['value']).then((value) => {
+                                if (value['res'] == Constants.OK) {
+                                  Navigator.popUntil(context, (route) => false),
+                                  Navigator.pushNamed(context, '/home')
+                                } else {
+                                  setState(() {
+                                    _errorMessage = Constants.authErrorMessage[value['code']];
+                                    _showLoading = false;
+                                  })
+                                }
+                              });
                             }
-                          }) :
-                          signUp(email: _data['email']['value'], password: _data['password']['value']).then((value) => {
-                            if (value['res'] == Constants.OK) {
-                              Navigator.popUntil(context, (route) => false),
-                              Navigator.pushNamed(context, '/home')
-                            } else {
-                              setState(() {
-                                _errorMessage = Constants.authErrorMessage[value['code']];
-                              })
-                            }
-                          });
-                        }
-                      }, child: Text(_isLogin ? 'Accedi' : 'Registrati')),
-                      TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _isLogin = !_isLogin;
-                            });
-                          },
-                          style: ButtonStyle(
-                            overlayColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                              if (states.contains(MaterialState.pressed)) {
-                                return Theme.of(context).colorScheme.secondary.withOpacity(0.5); // Colore dell'overlay quando viene premuto
-                              }
-                              return Colors.transparent;
-                            }),
-                            animationDuration: const Duration(milliseconds: 500)
+                          }, child: Text(_isLogin ? 'Accedi' : 'Registrati')),
+                          TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isLogin = !_isLogin;
+                                });
+                              },
+                              style: ButtonStyle(
+                                overlayColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.pressed)) {
+                                    return Theme.of(context).colorScheme.secondary.withOpacity(0.5); // Colore dell'overlay quando viene premuto
+                                  }
+                                  return Colors.transparent;
+                                }),
+                                animationDuration: const Duration(milliseconds: 500)
+                              ),
+                              child: Text(_isLogin ? 'Non ti sei ancora registrato? Registrati' : 'Ti sei già registrato? Accedi',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.secondary), textAlign: TextAlign.center,)
                           ),
-                          child: Text(_isLogin ? 'Non ti sei ancora registrato? Registrati' : 'Ti sei già registrato? Accedi',
-                              style: TextStyle(color: Theme.of(context).colorScheme.secondary), textAlign: TextAlign.center,)
+                        ],
                       )
                     ],
                   ),
