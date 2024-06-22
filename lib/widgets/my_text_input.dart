@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+typedef InputType = _InputType;
+
+enum _InputType {
+  Text,
+  Number,
+  Decimal
+}
 
 class MyTextInput extends StatefulWidget {
   MyTextInput({
@@ -6,6 +15,7 @@ class MyTextInput extends StatefulWidget {
     required this.label,
     this.obscureText = false,
     this.padding = const EdgeInsets.only(bottom: 10),
+    this.type,
     this.errorColor,
     this.border,
     this.fillColor,
@@ -13,6 +23,7 @@ class MyTextInput extends StatefulWidget {
     this.onSaved});
 
   final EdgeInsetsGeometry padding;
+  final InputType? type;
   final Color? errorColor;
   final String label;
   final bool obscureText;
@@ -45,15 +56,24 @@ class _MyTextInputState extends State<MyTextInput> {
         textInputAction: TextInputAction.next,
         cursorColor: Theme.of(context).colorScheme.tertiary,
         cursorErrorColor: Colors.red,
+        keyboardType: widget.type == InputType.Number ? TextInputType.number : widget.type == InputType.Decimal ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+        inputFormatters: widget.type == InputType.Number ?
+        <TextInputFormatter>[
+          FilteringTextInputFormatter.digitsOnly
+        ] :
+        widget.type == InputType.Decimal ?
+        <TextInputFormatter>[
+          FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}'))
+        ] : null,
         decoration: InputDecoration(
-            filled: true,
-            fillColor: widget.fillColor ?? Theme.of(context).colorScheme.secondary,
-            label: Text(widget.label),
-            labelStyle: TextStyle(color: _errorMessage == null ? Theme.of(context).colorScheme.tertiary : Colors.red),
-            errorStyle: TextStyle(color: widget.errorColor ?? Theme.of(context).colorScheme.secondary),
-            border: widget.border ?? UnderlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-            )
+          filled: true,
+          fillColor: widget.fillColor ?? Theme.of(context).colorScheme.secondary,
+          label: Text(widget.label),
+          labelStyle: TextStyle(color: _errorMessage == null ? Theme.of(context).colorScheme.tertiary : Colors.red),
+          errorStyle: TextStyle(color: widget.errorColor ?? Theme.of(context).colorScheme.secondary),
+          border: widget.border ?? UnderlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+          )
         ),
       ),
     );
