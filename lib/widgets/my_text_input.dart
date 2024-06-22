@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-typedef InputType = _InputType;
-
-enum _InputType {
+enum InputType {
   Text,
   Number,
   Decimal
