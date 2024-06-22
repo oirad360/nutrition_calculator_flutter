@@ -16,6 +16,7 @@ class MyTextInput extends StatefulWidget {
     this.obscureText = false,
     this.padding = const EdgeInsets.only(bottom: 10),
     this.type,
+    this.initialValue,
     this.errorColor,
     this.border,
     this.fillColor,
@@ -23,6 +24,7 @@ class MyTextInput extends StatefulWidget {
     this.onSaved});
 
   final EdgeInsetsGeometry padding;
+  final String? initialValue;
   final InputType? type;
   final Color? errorColor;
   final String label;
@@ -44,6 +46,7 @@ class _MyTextInputState extends State<MyTextInput> {
     return Padding(
       padding: widget.padding,
       child: TextFormField(
+        initialValue: widget.initialValue,
         validator: (value) {
           String? errorMessage = widget.validator!(value);
           setState(() {
@@ -56,7 +59,7 @@ class _MyTextInputState extends State<MyTextInput> {
         textInputAction: TextInputAction.next,
         cursorColor: Theme.of(context).colorScheme.tertiary,
         cursorErrorColor: Colors.red,
-        keyboardType: widget.type == InputType.Number ? TextInputType.number : widget.type == InputType.Decimal ? TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+        keyboardType: widget.type == InputType.Number ? TextInputType.number : widget.type == InputType.Decimal ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
         inputFormatters: widget.type == InputType.Number ?
         <TextInputFormatter>[
           FilteringTextInputFormatter.digitsOnly
