@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nutrition_calculator_flutter/constants.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
 
 class AddFood extends StatefulWidget {
@@ -29,7 +28,7 @@ class _AddFoodState extends State<AddFood> {
           },
         ),
       ),
-      drawer: MyDrawer(selectedTile: SelectedTile.auth),
+      drawer: MyDrawer(),
       body: const Center(
         child: SingleChildScrollView(
           child: Column(

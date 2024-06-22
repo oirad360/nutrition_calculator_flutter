@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/auth.dart';
 import 'package:nutrition_calculator_flutter/constants.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
+import 'package:nutrition_calculator_flutter/widgets/my_text_input.dart';
 import 'package:email_validator/email_validator.dart';
 
 class AuthPage extends StatefulWidget {
@@ -15,14 +16,8 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final _formKey = GlobalKey<FormState>();
   final Map _data = {
-    'email': {
-      'value': '',
-      'validity': true
-    },
-    'password': {
-      'value': '',
-      'validity': true
-    }
+    'email': '',
+    'password': ''
   };
   bool _isLogin = true;
   String? _errorMessage;
@@ -102,66 +97,20 @@ class _AuthPageState extends State<AuthPage> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: TextFormField(
-                          validator: (value) {
-                            setState(() {
-                              _data['email']['validity'] = value != null && value.isNotEmpty && EmailValidator.validate(value);
-                            });
-                            return value == null || value.isEmpty ?
-                                'Inserisci l\'email' :
-                                !EmailValidator.validate(value) ?
-                                'Inserisci un\'email valida' :
-                                null;
-                          },
-                          onSaved: (value) {
-                            setState(() {
-                              _data['email']['value'] = value!;
-                            });
-                          },
-                          textInputAction: TextInputAction.next,
-                          cursorColor: Theme.of(context).colorScheme.tertiary,
-                          cursorErrorColor: Colors.red,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Theme.of(context).colorScheme.secondary,
-                            label: const Text('Email'),
-                            labelStyle: TextStyle(color:  _data['email']['validity'] ? Theme.of(context).colorScheme.tertiary : Colors.red),
-                            errorStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                            border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            )
-                          ),
-                        ),
+                      MyTextInput(
+                        label: 'Email',
+                        validator: (value) => value == null || value.isEmpty ?
+                          'Inserisci l\'email' :
+                          !EmailValidator.validate(value) ?
+                          'Inserisci un\'email valida' :
+                          null,
+                        onSaved: (value) => _data['email'] = value!,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: TextFormField(
-                          validator: (value) {
-                            setState(() {
-                              _data['password']['validity'] = value != null && value.isNotEmpty;
-                            });
-                            return value != null && value.isNotEmpty ? null : 'Inserisci la password';
-                          },
-                          onSaved: (value) {
-                            _data['password']['value'] = value!;
-                          },
-                          obscureText: true,
-                          textInputAction: TextInputAction.done,
-                          cursorColor: Theme.of(context).colorScheme.tertiary,
-                          cursorErrorColor: Colors.red,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Theme.of(context).colorScheme.secondary,
-                            label: const Text('Password'),
-                            labelStyle: TextStyle(color:  _data['password']['validity'] ? Theme.of(context).colorScheme.tertiary : Colors.red),
-                            errorStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                            border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            )
-                          ),
-                        ),
+                      MyTextInput(
+                        label: 'Password',
+                        obscureText: true,
+                        validator: (value) => value != null && value.isNotEmpty ? null : 'Inserisci la password',
+                        onSaved: (value) => _data['password'] = value!,
                       ),
                       if(_errorMessage != null) Text(_errorMessage!, style: TextStyle(color: Theme.of(context).colorScheme.secondary), textAlign: TextAlign.center),
                       if(_showLoading) CircularProgressIndicator(
@@ -176,7 +125,7 @@ class _AuthPageState extends State<AuthPage> {
                                 _showLoading = true;
                               });
                               _isLogin ?
-                              signIn(email: _data['email']['value'], password: _data['password']['value']).then((value) => {
+                              signIn(email: _data['email'], password: _data['password']).then((value) => {
                                 if (value['res'] == Constants.OK) {
                                   Navigator.popUntil(context, (route) => false),
                                   Navigator.pushNamed(context, '/home')
@@ -187,7 +136,7 @@ class _AuthPageState extends State<AuthPage> {
                                   })
                                 }
                               }) :
-                              signUp(email: _data['email']['value'], password: _data['password']['value']).then((value) => {
+                              signUp(email: _data['email'], password: _data['password']).then((value) => {
                                 if (value['res'] == Constants.OK) {
                                   Navigator.popUntil(context, (route) => false),
                                   Navigator.pushNamed(context, '/home')
