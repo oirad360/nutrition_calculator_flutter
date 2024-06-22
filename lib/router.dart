@@ -1,5 +1,6 @@
 import 'package:nutrition_calculator_flutter/screens/home.dart';
 import 'package:nutrition_calculator_flutter/screens/auth_page.dart';
+import 'package:nutrition_calculator_flutter/screens/add_food.dart';
 import 'package:nutrition_calculator_flutter/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (context) => const MyHomePage(title: Constants.appTitle));
       case '/auth':
         return MaterialPageRoute(builder: (context) => const AuthPage());
+      case '/addFood':
+        return MaterialPageRoute(builder: (context) => const AddFood());
       default:
         return MaterialPageRoute(
           builder: (context) => const Placeholder(),
