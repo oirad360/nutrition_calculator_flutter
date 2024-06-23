@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nutrition_calculator_flutter/models/food.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
+import 'package:nutrition_calculator_flutter/widgets/my_dropdown_button.dart';
 
 import '../widgets/my_text_input.dart';
 
@@ -18,17 +19,17 @@ class _AddFoodState extends State<AddFood> {
   final Map _data = {
     'name': '',
     'description': '',
-    'calories': 0.0,
-    'fat': 0.0,
-    'carbs': 0.0,
-    'protein': 0.0,
-    'quantity': 0.0,
+    'calories': 0,
+    'fat': 0,
+    'carbs': 0,
+    'protein': 0,
+    'quantity': 0,
     'unitOfMeasure': UnitOfMeasure.g
   };
-  List<DropdownMenuItem> _dropDownList =<DropdownMenuItem>[
-    DropdownMenuItem(value: UnitOfMeasure.g, child: Text('g')),
-    DropdownMenuItem(value: UnitOfMeasure.ml, child: Text('ml')),
-    DropdownMenuItem(value: UnitOfMeasure.portion, child: Text('portions'))
+  final List<DropdownMenuItem> _dropDownList =<DropdownMenuItem>[
+    const DropdownMenuItem(value: UnitOfMeasure.g, child: Text('g')),
+    const DropdownMenuItem(value: UnitOfMeasure.ml, child: Text('ml')),
+    const DropdownMenuItem(value: UnitOfMeasure.portion, child: Text('portions'))
   ];
   @override
   Widget build(BuildContext context) {
@@ -58,32 +59,43 @@ class _AddFoodState extends State<AddFood> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  MyTextInput(
+                  MyTextInputFormField(
+                    label: 'Name',
+                    initialValue: _data['name'],
+                    maxLength: 3,
+                    onSaved: (value) => _data['calories'] = value!,
+                  ),
+                  MyTextInputFormField(
                     label: 'Calories',
                     type: InputType.Decimal,
+                    initialValue: _data['calories'].toString(),
                     onSaved: (value) => _data['calories'] = double.parse(value!),
                   ),
-                  MyTextInput(
+                  MyTextInputFormField(
                     label: 'Fat',
                     type: InputType.Decimal,
+                    initialValue: _data['fat'].toString(),
                     onSaved: (value) => _data['fat'] = double.parse(value!),
                   ),
-                  MyTextInput(
+                  MyTextInputFormField(
                     label: 'Carbs',
                     type: InputType.Decimal,
+                    initialValue: _data['carbs'].toString(),
                     onSaved: (value) => _data['carbs'] = double.parse(value!),
                   ),
-                  MyTextInput(
+                  MyTextInputFormField(
                     label: 'Protein',
                     type: InputType.Decimal,
+                    initialValue: _data['protein'].toString(),
                     onSaved: (value) => _data['protein'] = double.parse(value!),
                   ),
                   Row(
                     children: [
                       Expanded(
-                        child: MyTextInput(
+                        child: MyTextInputFormField(
                           label: 'Quantity',
                           type: InputType.Decimal,
+                          initialValue: _data['quantity'].toString(),
                           onSaved: (value) => _data['quantity'] = double.parse(value!),
                         ),
                       ),
@@ -91,19 +103,11 @@ class _AddFoodState extends State<AddFood> {
                         width: 10,
                       ),
                       ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 109),
-                        child: DropdownButtonFormField(
-                          items: _dropDownList,
+                        constraints: const BoxConstraints(maxWidth: 109),
+                        child: MyDropdownButtonFormField(
+                          dropDownList: _dropDownList,
                           onChanged: (value) => _data['unitOfMeasure'] = value,
-                          value: _data['unitOfMeasure'],
-                          decoration: InputDecoration(
-                            isDense: true,
-                            border: UnderlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            filled: true,
-                            fillColor: Theme.of(context).colorScheme.secondary
-                          ),
+                          initialValue: _data['unitOfMeasure'],
                         ),
                       ),
                     ],

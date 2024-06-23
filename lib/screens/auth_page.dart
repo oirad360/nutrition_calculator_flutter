@@ -97,7 +97,7 @@ class _AuthPageState extends State<AuthPage> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      MyTextInput(
+                      MyTextInputFormField(
                         label: 'Email',
                         validator: (value) => value == null || value.isEmpty ?
                           'Inserisci l\'email' :
@@ -106,7 +106,7 @@ class _AuthPageState extends State<AuthPage> {
                           null,
                         onSaved: (value) => _data['email'] = value!,
                       ),
-                      MyTextInput(
+                      MyTextInputFormField(
                         label: 'Password',
                         obscureText: true,
                         validator: (value) => value != null && value.isNotEmpty ? null : 'Inserisci la password',

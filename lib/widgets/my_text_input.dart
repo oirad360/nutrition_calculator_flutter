@@ -7,8 +7,8 @@ enum InputType {
   Decimal
 }
 
-class MyTextInput extends StatefulWidget {
-  MyTextInput({
+class MyTextInputFormField extends StatefulWidget {
+  const MyTextInputFormField({
     super.key,
     required this.label,
     this.obscureText = false,
@@ -19,7 +19,9 @@ class MyTextInput extends StatefulWidget {
     this.border,
     this.fillColor,
     this.validator,
-    this.onSaved});
+    this.onSaved,
+    this.maxLength
+  });
 
   final EdgeInsetsGeometry padding;
   final String? initialValue;
@@ -29,14 +31,15 @@ class MyTextInput extends StatefulWidget {
   final bool obscureText;
   final InputBorder? border;
   final Color? fillColor;
-  String? Function(String?)? validator;
-  void Function(String?)? onSaved;
+  final String? Function(String?)? validator;
+  final void Function(String?)? onSaved;
+  final int? maxLength;
 
   @override
-  State<MyTextInput> createState() => _MyTextInputState();
+  State<MyTextInputFormField> createState() => _MyTextInputFormFieldState();
 }
 
-class _MyTextInputState extends State<MyTextInput> {
+class _MyTextInputFormFieldState extends State<MyTextInputFormField> {
   String? _errorMessage;
 
   @override
@@ -44,6 +47,7 @@ class _MyTextInputState extends State<MyTextInput> {
     return Padding(
       padding: widget.padding,
       child: TextFormField(
+        maxLength: widget.maxLength,
         initialValue: widget.initialValue,
         validator: (value) {
           String? errorMessage = widget.validator!(value);
@@ -57,15 +61,16 @@ class _MyTextInputState extends State<MyTextInput> {
         textInputAction: TextInputAction.next,
         cursorColor: Theme.of(context).colorScheme.tertiary,
         cursorErrorColor: Colors.red,
-        keyboardType: widget.type == InputType.Number ? TextInputType.number : widget.type == InputType.Decimal ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+        keyboardType: widget.type == InputType.Number ? TextInputType.number :
+                      widget.type == InputType.Decimal ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
         inputFormatters: widget.type == InputType.Number ?
-        <TextInputFormatter>[
-          FilteringTextInputFormatter.digitsOnly
-        ] :
-        widget.type == InputType.Decimal ?
-        <TextInputFormatter>[
-          FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}'))
-        ] : null,
+                        <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ] :
+                        widget.type == InputType.Decimal ?
+                        <TextInputFormatter>[
+                          FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}'))
+                        ] : null,
         decoration: InputDecoration(
           filled: true,
           fillColor: widget.fillColor ?? Theme.of(context).colorScheme.secondary,
