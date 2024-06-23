@@ -59,8 +59,8 @@ class _MyTextInputFormFieldState extends State<MyTextInputFormField> {
         children: [
           TextFormField(
             maxLength: widget.maxLength,
-            maxLines: widget.maxLines,
-            minLines: widget.minLines ?? widget.maxLines,
+            maxLines: widget.obscureText ? 1 : widget.maxLines,
+            minLines: widget.obscureText ? 1 : widget.minLines ?? widget.maxLines,
             initialValue: widget.initialValue,
             onChanged: (value) {
               setState(() {

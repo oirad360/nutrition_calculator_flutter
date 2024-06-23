@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nutrition_calculator_flutter/database.dart';
 import 'package:nutrition_calculator_flutter/models/food.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
 import 'package:nutrition_calculator_flutter/widgets/my_dropdown_button.dart';
@@ -15,17 +16,8 @@ class AddFood extends StatefulWidget {
 }
 
 class _AddFoodState extends State<AddFood> {
-  final _formKey = GlobalKey<FormState>();
-  final Map _data = {
-    'name': '',
-    'description': '',
-    'calories': 0,
-    'fat': 0,
-    'carbs': 0,
-    'protein': 0,
-    'quantity': 0,
-    'unitOfMeasure': UnitOfMeasure.g
-  };
+  final DatabaseService _dbService = DatabaseService();
+  final Food _food = Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0);
   final List<DropdownMenuItem> _dropDownList =<DropdownMenuItem>[
     const DropdownMenuItem(value: UnitOfMeasure.g, child: Text('g')),
     const DropdownMenuItem(value: UnitOfMeasure.ml, child: Text('ml')),
@@ -61,51 +53,51 @@ class _AddFoodState extends State<AddFood> {
                 children: <Widget>[
                   MyTextInputFormField(
                     label: 'Name',
-                    initialValue: _data['name'],
+                    initialValue: _food.name,
                     maxLength: 50,
                     onChanged: (value) => {
                       setState(() {
-                        _data['name'] = value!;
+                        _food.name = value!;
                       })
                     },
                   ),
                   MyTextInputFormField(
                     label: 'Calories',
                     type: InputType.Decimal,
-                    initialValue: _data['calories'].toString(),
+                    initialValue: _food.calories.toString(),
                     onChanged: (value) => {
                       setState(() {
-                        _data['calories'] = value != '' ? double.parse(value!) : 0;
+                        _food.calories = value != '' ? double.parse(value!) : 0;
                       })
                     },
                   ),
                   MyTextInputFormField(
                     label: 'Fat',
                     type: InputType.Decimal,
-                    initialValue: _data['fat'].toString(),
+                    initialValue: _food.fat.toString(),
                     onChanged: (value) => {
                       setState(() {
-                        _data['fat'] = value != '' ? double.parse(value!) : 0;
+                        _food.fat = value != '' ? double.parse(value!) : 0;
                       })
                     },
                   ),
                   MyTextInputFormField(
                     label: 'Carbs',
                     type: InputType.Decimal,
-                    initialValue: _data['carbs'].toString(),
+                    initialValue: _food.carbs.toString(),
                     onChanged: (value) => {
                       setState(() {
-                        _data['carbs'] = value != '' ? double.parse(value!) : 0;
+                        _food.carbs = value != '' ? double.parse(value!) : 0;
                       })
                     },
                   ),
                   MyTextInputFormField(
                     label: 'Protein',
                     type: InputType.Decimal,
-                    initialValue: _data['protein'].toString(),
+                    initialValue: _food.protein.toString(),
                     onChanged: (value) => {
                       setState(() {
-                        _data['protein'] = value != '' ? double.parse(value!) : 0;
+                        _food.protein = value != '' ? double.parse(value!) : 0;
                       })
                     },
                   ),
@@ -115,10 +107,10 @@ class _AddFoodState extends State<AddFood> {
                         child: MyTextInputFormField(
                           label: 'Quantity',
                           type: InputType.Decimal,
-                          initialValue: _data['quantity'].toString(),
+                          initialValue: _food.quantity.toString(),
                           onChanged: (value) => {
                             setState(() {
-                              _data['quantity'] = value != '' ? double.parse(value!) : 0;
+                              _food.quantity = value != '' ? double.parse(value!) : 0;
                             })
                           },
                         ),
@@ -132,23 +124,23 @@ class _AddFoodState extends State<AddFood> {
                           dropDownList: _dropDownList,
                           onChanged: (value) => {
                             setState(() {
-                              _data['unitOfMeasure'] = value;
+                              _food.unitOfMeasure = value;
                             })
                           },
-                          initialValue: _data['unitOfMeasure'],
+                          initialValue: _food.unitOfMeasure,
                         ),
                       ),
                     ],
                   ),
                   MyTextInputFormField(
                     label: 'Description',
-                    initialValue: _data['description'],
+                    initialValue: _food.description,
                     maxLength: 500,
                     maxLines: 10,
                     minLines: 1,
                     onChanged: (value) => {
                       setState(() {
-                        _data['description'] = value!;
+                        _food.description = value!;
                       })
                     },
                   ),
@@ -158,11 +150,11 @@ class _AddFoodState extends State<AddFood> {
           ),
         ),
       ),
-      floatingActionButton: _data['name'] != '' && _data['calories'] > 0 && _data['quantity'] > 0 &&
-          (_data['fat'] > 0 || _data['carbs'] > 0 || _data['protein'] > 0) ?
+      floatingActionButton: _food.name != '' && _food.calories > 0 && _food.quantity > 0 &&
+          (_food.fat! > 0 || _food.carbs! > 0 || _food.protein! > 0) ?
       FloatingActionButton(
         onPressed: () {
-          print(_data);
+          _dbService.addFood(_food).then((snapshot) => print("Added Data with ID: ${snapshot.id}"));
         },
         tooltip: 'Add food',
         backgroundColor: Theme.of(context).colorScheme.secondary,
