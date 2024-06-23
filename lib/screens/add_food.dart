@@ -54,7 +54,7 @@ class _AddFoodState extends State<AddFood> {
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50.0),
+            padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 15.0),
             child: Form(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -111,7 +111,15 @@ class _AddFoodState extends State<AddFood> {
                         ),
                       ),
                     ],
-                  )
+                  ),
+                  MyTextInputFormField(
+                    label: 'Description',
+                    initialValue: _data['description'],
+                    maxLength: 500,
+                    maxLines: 10,
+                    minLines: 1,
+                    onSaved: (value) => _data['description'] = value!,
+                  ),
                 ],
               ),
             ),

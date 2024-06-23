@@ -22,6 +22,8 @@ class MyTextInputFormField extends StatefulWidget {
     this.onSaved,
     this.onChanged,
     this.maxLength,
+    this.maxLines,
+    this.minLines,
     this.counterValueVisibility
   });
 
@@ -37,6 +39,8 @@ class MyTextInputFormField extends StatefulWidget {
   final void Function(String?)? onChanged;
   final void Function(String?)? onSaved;
   final int? maxLength;
+  final int? maxLines;
+  final int? minLines;
   final int? counterValueVisibility;
 
   @override
@@ -55,6 +59,8 @@ class _MyTextInputFormFieldState extends State<MyTextInputFormField> {
         children: [
           TextFormField(
             maxLength: widget.maxLength,
+            maxLines: widget.maxLines,
+            minLines: widget.minLines ?? widget.maxLines,
             initialValue: widget.initialValue,
             onChanged: (value) {
               setState(() {
