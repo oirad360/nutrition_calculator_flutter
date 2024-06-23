@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:nutrition_calculator_flutter/database.dart';
 import 'package:nutrition_calculator_flutter/models/food.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
 import 'package:nutrition_calculator_flutter/widgets/my_dropdown_button.dart';
 
+import '../auth.dart';
 import '../widgets/my_text_input.dart';
 
 class AddFood extends StatefulWidget {
@@ -17,7 +16,8 @@ class AddFood extends StatefulWidget {
 
 class _AddFoodState extends State<AddFood> {
   final DatabaseService _dbService = DatabaseService();
-  final Food _food = Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0);
+  final AuthService _authService = AuthService();
+  final Food _food = Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0, userUID: '');
   final List<DropdownMenuItem> _dropDownList =<DropdownMenuItem>[
     const DropdownMenuItem(value: UnitOfMeasure.g, child: Text('g')),
     const DropdownMenuItem(value: UnitOfMeasure.ml, child: Text('ml')),
@@ -154,7 +154,14 @@ class _AddFoodState extends State<AddFood> {
           (_food.fat! > 0 || _food.carbs! > 0 || _food.protein! > 0) ?
       FloatingActionButton(
         onPressed: () {
-          _dbService.addFood(_food).then((snapshot) => print("Added Data with ID: ${snapshot.id}"));
+          _food.userUID = _authService.user!.uid;
+          _dbService.addFood(_food).then((snapshot) => {
+            showDialog(context: context, builder: (context) {
+              return const AlertDialog(
+                title: Text('New food added!'),
+              );
+            })
+          });
         },
         tooltip: 'Add food',
         backgroundColor: Theme.of(context).colorScheme.secondary,

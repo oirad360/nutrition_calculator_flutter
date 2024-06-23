@@ -12,4 +12,8 @@ class DatabaseService {
     return await _food.add(food);
   }
 
+  Stream<QuerySnapshot> getUserFood(String userUID) {
+    return _food.where('userUID', isEqualTo: userUID).snapshots();
+  }
+
 }

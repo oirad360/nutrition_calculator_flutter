@@ -15,11 +15,18 @@ class MyDrawer extends StatefulWidget {
 class _MyDrawerState extends State<MyDrawer> {
   final AuthService _authService = AuthService();
 
-  Future<void> signOut() async {
+  Future<Map<String, String>> signOut() async {
     try {
       await _authService.signOut();
+      return {
+        "res": Constants.OK
+      };
     } on FirebaseAuthException catch (e) {
       print(e);
+      return {
+        "res": Constants.KO,
+        "code": e.code
+      };
     }
   }
   @override
@@ -71,7 +78,11 @@ class _MyDrawerState extends State<MyDrawer> {
               ) else ListTile(
                 title: const Text('Esci', style: TextStyle(fontSize: 20)),
                 onTap: () {
-                  signOut();
+                  signOut().then((value) => {
+                    if (value["res"] == Constants.OK) {
+                      Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false)
+                    }
+                  });
                 },
               )
             ],
