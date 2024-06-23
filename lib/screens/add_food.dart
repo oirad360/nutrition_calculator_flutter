@@ -62,7 +62,7 @@ class _AddFoodState extends State<AddFood> {
                   MyTextInputFormField(
                     label: 'Name',
                     initialValue: _data['name'],
-                    maxLength: 3,
+                    maxLength: 50,
                     onSaved: (value) => _data['calories'] = value!,
                   ),
                   MyTextInputFormField(

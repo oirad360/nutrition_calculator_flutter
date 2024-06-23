@@ -20,7 +20,9 @@ class MyTextInputFormField extends StatefulWidget {
     this.fillColor,
     this.validator,
     this.onSaved,
-    this.maxLength
+    this.onChanged,
+    this.maxLength,
+    this.counterValueVisibility
   });
 
   final EdgeInsetsGeometry padding;
@@ -32,8 +34,10 @@ class MyTextInputFormField extends StatefulWidget {
   final InputBorder? border;
   final Color? fillColor;
   final String? Function(String?)? validator;
+  final void Function(String?)? onChanged;
   final void Function(String?)? onSaved;
   final int? maxLength;
+  final int? counterValueVisibility;
 
   @override
   State<MyTextInputFormField> createState() => _MyTextInputFormFieldState();
@@ -41,46 +45,68 @@ class MyTextInputFormField extends StatefulWidget {
 
 class _MyTextInputFormFieldState extends State<MyTextInputFormField> {
   String? _errorMessage;
+  String? _value;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: widget.padding,
-      child: TextFormField(
-        maxLength: widget.maxLength,
-        initialValue: widget.initialValue,
-        validator: (value) {
-          String? errorMessage = widget.validator!(value);
-          setState(() {
-            _errorMessage = errorMessage;
-          });
-          return errorMessage;
-        },
-        onSaved:  widget.onSaved,
-        obscureText: widget.obscureText,
-        textInputAction: TextInputAction.next,
-        cursorColor: Theme.of(context).colorScheme.tertiary,
-        cursorErrorColor: Colors.red,
-        keyboardType: widget.type == InputType.Number ? TextInputType.number :
-                      widget.type == InputType.Decimal ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
-        inputFormatters: widget.type == InputType.Number ?
-                        <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly
-                        ] :
-                        widget.type == InputType.Decimal ?
-                        <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}'))
-                        ] : null,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: widget.fillColor ?? Theme.of(context).colorScheme.secondary,
-          label: Text(widget.label),
-          labelStyle: TextStyle(color: _errorMessage == null ? Theme.of(context).colorScheme.tertiary : Colors.red),
-          errorStyle: TextStyle(color: widget.errorColor ?? Theme.of(context).colorScheme.secondary),
-          border: widget.border ?? UnderlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
+      child: Stack(
+        children: [
+          TextFormField(
+            maxLength: widget.maxLength,
+            initialValue: widget.initialValue,
+            onChanged: (value) {
+              setState(() {
+                _value = value;
+              });
+              if (widget.onChanged != null) {
+                widget.onChanged!(value);
+              }
+            },
+            validator: (value) {
+              String? errorMessage;
+              if(widget.validator != null) {
+                errorMessage = widget.validator!(value);
+              }
+              setState(() {
+                _errorMessage = errorMessage;
+              });
+              return errorMessage;
+            },
+            onSaved:  widget.onSaved,
+            obscureText: widget.obscureText,
+            textInputAction: TextInputAction.next,
+            cursorColor: Theme.of(context).colorScheme.tertiary,
+            cursorErrorColor: Colors.red,
+            keyboardType: widget.type == InputType.Number ? TextInputType.number :
+                          widget.type == InputType.Decimal ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
+            inputFormatters: widget.type == InputType.Number ?
+                            <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly
+                            ] :
+                            widget.type == InputType.Decimal ?
+                            <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}'))
+                            ] : null,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: widget.fillColor ?? Theme.of(context).colorScheme.secondary,
+              label: Text(widget.label),
+              labelStyle: TextStyle(color: _errorMessage == null ? Theme.of(context).colorScheme.tertiary : Colors.red),
+              errorStyle: TextStyle(color: widget.errorColor ?? Theme.of(context).colorScheme.secondary),
+              border: widget.border ?? UnderlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              counter: const Offstage()
+            ),
+          ),
+          if (widget.maxLength != null && _value != null && _value!.length >= (widget.counterValueVisibility ?? (widget.maxLength! / 2))) Positioned(
+            top: 11,
+            right: 11,
+            child: Text('${_value?.length}/${widget.maxLength}', style: TextStyle(color: Theme.of(context).colorScheme.tertiary, fontSize: 12))
           )
-        ),
+        ],
       ),
     );
   }
