@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/auth.dart';
+import 'package:nutrition_calculator_flutter/screens/calculate.dart';
 import 'package:nutrition_calculator_flutter/screens/food_table.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
 import 'package:nutrition_calculator_flutter/widgets/tab_horizontal.dart';
 import '../constants.dart';
+import '../database.dart';
+import '../models/food.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -16,8 +19,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   final AuthService _authService = AuthService();
+  final DatabaseService _dbService = DatabaseService();
   late TabController _tabController;
   int _tabIndex = 0;
+  List<Map<String, dynamic>> _foodCalculate = [];
 
   @override
   void initState() {
@@ -32,11 +37,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
+  void _addFoodCalculate(double quantity, Food food) {
+    setState(() {
+      _foodCalculate.add({
+        'food': food,
+        'quantity': quantity
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: _authService.userChanges,
-      builder: (context, snapshot) {
+      builder: (context, authSnapshot) {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.primary,
@@ -67,21 +81,42 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
           ),
           drawer: MyDrawer(selectedTile: SelectedTile.home),
-          body: TabBarView(
+          body: authSnapshot.hasData ? StreamBuilder(
+              stream: _dbService.getUserFood(_authService.user!.uid),
+              builder: (context, foodSnapshot) {
+                return TabBarView(
+                    controller: _tabController,
+                    children: [
+                      if (foodSnapshot.hasData) FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate,)
+                      else if (foodSnapshot.connectionState == ConnectionState.waiting)
+                        Center(
+                            child: CircularProgressIndicator(
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                        ) else const Center(child: Text('Add some food!')),
+                      Calculate(entries: _foodCalculate,),
+                      const Center(
+                        child: Text('Meals'),
+                      ),
+                    ]
+                );
+              }
+          ) :
+          TabBarView(
             controller: _tabController,
-            children: [
-              if (snapshot.hasData) const FoodTable() else const Center(
-                child: Text('Login to get some food!'),
+            children: const [
+              Center(
+                child: Text('Login to show your foods!'),
               ),
-              const Center(
-                child: Text('Calculate'),
+              Center(
+                child: Text('Login to calculate your meals!'),
               ),
-              const Center(
-                child: Text('Meals'),
+              Center(
+                child: Text('Login to show your meals!'),
               ),
             ]
           ),
-          floatingActionButton: _tabIndex == 0 && snapshot.hasData ? FloatingActionButton(
+          floatingActionButton: _tabIndex == 0 && authSnapshot.hasData ? FloatingActionButton(
             onPressed: () {
               Navigator.pushNamed(context, '/addFood');
             },
