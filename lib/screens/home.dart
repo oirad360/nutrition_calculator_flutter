@@ -61,6 +61,24 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
+  void _addMeal(String userUID, List<Map<String, dynamic>> entries) async {
+    // use Future.wait to wait all futures resolution
+    List<Map<String, dynamic>> newEntries = await Future.wait(entries.map((e) async {
+      return {
+        'food': await _dbService.getFoodRef(userUID, e['food'].id),
+        'quantity': e['food'].quantity
+      };
+    }).toList());
+
+    _dbService.addMeal(_authService.user!.uid, newEntries).then((snapshot) {
+      showDialog(context: context, builder: (context) {
+        return const AlertDialog(
+          title: Text('New meal added!'),
+        );
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -109,7 +127,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               color: Theme.of(context).colorScheme.primary,
                             )
                         ) else const Center(child: Text('Add some food!')),
-                      if(_foodCalculate.isNotEmpty) Calculate(entries: _foodCalculate, deleteFoodCalculate: _deleteFoodCalculate, updateFoodCalculate: _updateFoodCalculate)
+                      if(_foodCalculate.isNotEmpty) Calculate(
+                        entries: _foodCalculate,
+                        deleteFoodCalculate: _deleteFoodCalculate,
+                        updateFoodCalculate: _updateFoodCalculate,
+                        addMeal: () {
+                          _addMeal(_authService.user!.uid, _foodCalculate);
+                        }
+                      )
                       else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
                       const Center(
                         child: Text('Meals'),
