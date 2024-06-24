@@ -34,13 +34,8 @@ class Food {
   double? protein;
   double quantity;
   UnitOfMeasure unitOfMeasure;
-  String? _userUID;
 
-  set userUID(String userUID) {
-    _userUID = userUID;
-  }
-
-  Food({required this.name, required this.quantity, required this.calories, required this.unitOfMeasure, this.id = '', this.description, this.fat, this.carbs, this.protein, String? userUID}) : _userUID = userUID;
+  Food({required this.name, required this.quantity, required this.calories, required this.unitOfMeasure, this.id = '', this.description, this.fat, this.carbs, this.protein});
 
   factory Food.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -56,7 +51,6 @@ class Food {
       carbs: data?['carbs'],
       protein: data?['protein'],
       quantity: data?['quantity'],
-      userUID: data?['userUID'],
       unitOfMeasure: UnitOfMeasureExtension.fromShortString(data?['unitOfMeasure']),
     );
   }
@@ -64,7 +58,7 @@ class Food {
 
   @override
   String toString() {
-    return 'Food{id: $id, name: $name, description: $description, calories: $calories, fat: $fat, carbs: $carbs, protein: $protein, quantity: $quantity, unitOfMeasure: $unitOfMeasure, userUID: $_userUID}';
+    return 'Food{id: $id, name: $name, description: $description, calories: $calories, fat: $fat, carbs: $carbs, protein: $protein, quantity: $quantity, unitOfMeasure: $unitOfMeasure}';
   }
 
   Map<String, dynamic> toFirestore() {
@@ -73,7 +67,6 @@ class Food {
       "quantity": quantity,
       "unitOfMeasure": unitOfMeasure.toShortString(),
       "calories": calories,
-      "userUID": _userUID,
       if (description != null) "description": description,
       if (fat != null) "fat": fat,
       if (carbs != null) "carbs": carbs,

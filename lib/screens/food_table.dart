@@ -22,17 +22,21 @@ class _FoodTableState extends State<FoodTable> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView(
-              children: snapshot.data!.map((data) => ListTile(
-                  title: Text(data.name),
-                  subtitle: Text('calories: ${data.calories - data.calories.truncate() > 0 ? data.calories : data.calories.toInt()}kcal\n'
-                      'fat: ${data.fat! - data.fat!.truncate() > 0 ? data.fat : data.fat?.toInt()}g, '
-                      'carbs: ${data.carbs! - data.carbs!.truncate() > 0 ? data.carbs : data.carbs?.toInt()}g, '
-                      'protein: ${data.protein! - data.protein!.truncate() > 0 ? data.protein : data.protein?.toInt()}g\n'
-                      'quantity: ${data.quantity.toString()+data.unitOfMeasure.toShortString()}'),
+              children: snapshot.data!.map((food) => ListTile(
+                  title: Text(food.name),
+                  subtitle: Text('calories: ${food.calories - food.calories.truncate() > 0 ? food.calories : food.calories.toInt()}kcal\n'
+                      'fat: ${food.fat! - food.fat!.truncate() > 0 ? food.fat : food.fat?.toInt()}g, '
+                      'carbs: ${food.carbs! - food.carbs!.truncate() > 0 ? food.carbs : food.carbs?.toInt()}g, '
+                      'protein: ${food.protein! - food.protein!.truncate() > 0 ? food.protein : food.protein?.toInt()}g\n'
+                      'quantity: ${food.quantity - food.quantity.truncate() > 0 ? food.quantity : food.quantity.toInt()}${food.unitOfMeasure.toShortString()}'),
               )).toList()
           );
+        } else if (snapshot.connectionState == ConnectionState.waiting){
+          return Center(child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+          ));
         } else {
-          return const Text('Add some food!');
+          return const Center(child: Text('Add some food!'));
         }
 
       }

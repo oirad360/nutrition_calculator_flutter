@@ -17,7 +17,7 @@ class AddFood extends StatefulWidget {
 class _AddFoodState extends State<AddFood> {
   final DatabaseService _dbService = DatabaseService();
   final AuthService _authService = AuthService();
-  final Food _food = Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0, userUID: '');
+  final Food _food = Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0);
   final List<DropdownMenuItem> _dropDownList =<DropdownMenuItem>[
     const DropdownMenuItem(value: UnitOfMeasure.g, child: Text('g')),
     const DropdownMenuItem(value: UnitOfMeasure.ml, child: Text('ml')),
@@ -154,8 +154,7 @@ class _AddFoodState extends State<AddFood> {
           (_food.fat! > 0 || _food.carbs! > 0 || _food.protein! > 0) ?
       FloatingActionButton(
         onPressed: () {
-          _food.userUID = _authService.user!.uid;
-          _dbService.addFood(_food).then((snapshot) => {
+          _dbService.addFood(_authService.user!.uid, _food).then((snapshot) => {
             showDialog(context: context, builder: (context) {
               return const AlertDialog(
                 title: Text('New food added!'),
