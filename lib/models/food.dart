@@ -25,6 +25,7 @@ extension UnitOfMeasureExtension on UnitOfMeasure {
 }
 
 class Food {
+  String id;
   String name;
   String? description;
   double calories;
@@ -39,7 +40,7 @@ class Food {
     _userUID = userUID;
   }
 
-  Food({required this.name, required this.quantity, required this.calories, required this.unitOfMeasure, this.description, this.fat, this.carbs, this.protein, String? userUID}) : _userUID = userUID;
+  Food({required this.name, required this.quantity, required this.calories, required this.unitOfMeasure, this.id = '', this.description, this.fat, this.carbs, this.protein, String? userUID}) : _userUID = userUID;
 
   factory Food.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -47,6 +48,7 @@ class Food {
       ) {
     final data = snapshot.data();
     return Food(
+      id: snapshot.id,
       name: data?['name'],
       description: data?['description'],
       calories: data?['calories'],
@@ -62,7 +64,7 @@ class Food {
 
   @override
   String toString() {
-    return 'Food{name: $name, description: $description, calories: $calories, fat: $fat, carbs: $carbs, protein: $protein, quantity: $quantity, unitOfMeasure: $unitOfMeasure, userUID: $_userUID}';
+    return 'Food{id: $id, name: $name, description: $description, calories: $calories, fat: $fat, carbs: $carbs, protein: $protein, quantity: $quantity, unitOfMeasure: $unitOfMeasure, userUID: $_userUID}';
   }
 
   Map<String, dynamic> toFirestore() {

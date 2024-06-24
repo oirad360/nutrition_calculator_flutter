@@ -12,8 +12,22 @@ class DatabaseService {
     return await _food.add(food);
   }
 
-  Stream<QuerySnapshot> getUserFood(String userUID) {
-    return _food.where('userUID', isEqualTo: userUID).snapshots();
+  Stream<List<Food>> getUserFood(String userUID) {
+    return _food.where('userUID', isEqualTo: userUID)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+      final food = doc.data();
+      return Food(
+        id: doc.id,
+        name: food.name,
+        quantity: food.quantity,
+        calories: food.calories,
+        unitOfMeasure: food.unitOfMeasure,
+        description: food.description,
+        fat: food.fat,
+        carbs: food.carbs,
+        protein: food.protein,
+      );
+    }).toList());
   }
-
 }
