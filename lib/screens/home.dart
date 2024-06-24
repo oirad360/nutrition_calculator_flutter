@@ -46,6 +46,21 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
+  void _deleteFoodCalculate(String foodId) {
+    setState(() {
+      _foodCalculate.removeWhere((entry) => entry['food'].id == foodId);
+    });
+  }
+
+  void _updateFoodCalculate(String foodId, double quantity) {
+    setState(() {
+      _foodCalculate = _foodCalculate.map((entry) => entry['food'].id != foodId ? entry : {
+        'food': entry['food'],
+        'quantity': quantity
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -94,7 +109,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               color: Theme.of(context).colorScheme.primary,
                             )
                         ) else const Center(child: Text('Add some food!')),
-                      Calculate(entries: _foodCalculate,),
+                      if(_foodCalculate.isNotEmpty) Calculate(entries: _foodCalculate, deleteFoodCalculate: _deleteFoodCalculate, updateFoodCalculate: _updateFoodCalculate)
+                      else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
                       const Center(
                         child: Text('Meals'),
                       ),
