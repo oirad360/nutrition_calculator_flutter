@@ -8,6 +8,7 @@ import 'package:nutrition_calculator_flutter/widgets/tab_horizontal.dart';
 import '../constants.dart';
 import '../database.dart';
 import '../models/food.dart';
+import 'meals.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -146,8 +147,19 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         }
                       )
                       else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
-                      const Center(
-                        child: Text('Meals'),
+                      StreamBuilder(
+                          stream: _dbService.getUserMeals(_authService.user!.uid),
+                          builder: (context, mealSnapshot) {
+                            if (mealSnapshot.hasData) return Meals(meals: mealSnapshot.data);
+                            if (mealSnapshot.connectionState == ConnectionState.waiting) {
+                              return Center(
+                                  child: CircularProgressIndicator(
+                                    color: Theme.of(context).colorScheme.primary,
+                                  )
+                              );
+                            }
+                            return const Center(child: Text('You didn\'t save any meal!'));
+                          }
                       ),
                     ]
                 ) :

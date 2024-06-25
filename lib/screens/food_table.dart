@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../models/food.dart';
 
 class FoodTable extends StatelessWidget {

@@ -1,8 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/widgets/my_text_input.dart';
-
-import '../database.dart';
 import '../models/food.dart';
 
 class Calculate extends StatefulWidget {
