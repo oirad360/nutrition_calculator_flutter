@@ -22,6 +22,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   final AuthService _authService = AuthService();
   final DatabaseService _dbService = DatabaseService();
   late TabController _tabController;
+  late String _mealName;
   int _tabIndex = 0;
   List<Map<String, dynamic>> _foodsCalculate = [];
 
@@ -62,15 +63,19 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
-  void _addMeal(String userUID, List<Map<String, dynamic>> foods) async {
+  void _updateMealName(String value) {
+    setState(() {
+      _mealName = value;
+    });
+  }
+
+  void _addMeal(String userUID, String name, List<Map<String, dynamic>> foods) async {
     // use Future.wait to wait all futures resolution
     List<FoodCalculate> newEntries = await Future.wait(foods.map((e) async {
       return FoodCalculate(food: await _dbService.getFoodRef(userUID, e['food'].id), quantity: e['food'].quantity);
     }).toList());
 
-    print(newEntries);
-
-    _dbService.addMeal(_authService.user!.uid, newEntries).then((snapshot) {
+    _dbService.addMeal(_authService.user!.uid, name, newEntries).then((snapshot) {
       showDialog(context: context, builder: (context) {
         return const AlertDialog(
           title: Text('New meal added!'),
@@ -135,8 +140,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         foods: _foodsCalculate,
                         deleteFoodCalculate: _deleteFoodCalculate,
                         updateFoodCalculate: _updateFoodCalculate,
+                          updateMealName: _updateMealName,
                         addMeal: () {
-                          _addMeal(_authService.user!.uid, _foodsCalculate);
+                          _addMeal(_authService.user!.uid, _mealName, _foodsCalculate);
                         }
                       )
                       else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),

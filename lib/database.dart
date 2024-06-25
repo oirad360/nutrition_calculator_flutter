@@ -21,12 +21,12 @@ class DatabaseService {
         ).doc(foodId);
   }
 
-  Future<DocumentReference<Meal>> addMeal(String userUID, List<FoodCalculate> entries) async {
+  Future<DocumentReference<Meal>> addMeal(String userUID, String name, List<FoodCalculate> entries) async {
     return _db.collection('user').doc(userUID).collection('meals')
         .withConverter(
         fromFirestore: Meal.fromFirestore,
         toFirestore: (Meal meal, options) => meal.toFirestore()
-    ).add(Meal(foods: entries));
+    ).add(Meal(name: name, foods: entries));
   }
 
   Stream<List<Food>> getUserFood(String userUID) {
@@ -59,6 +59,7 @@ class DatabaseService {
       final meal = doc.data();
       return Meal(
         id: doc.id,
+        name: meal.name,
         foods: meal.foods
       );
     }).toList());

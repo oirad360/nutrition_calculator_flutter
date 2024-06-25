@@ -5,9 +5,10 @@ import 'food.dart';
 class Meal {
 
   List<FoodCalculate> foods;
+  String name;
   String id;
 
-  Meal({required this.foods, this.id = '',});
+  Meal({required this.foods, required this.name, this.id = '',});
 
   factory Meal.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -16,6 +17,7 @@ class Meal {
     final data = snapshot.data();
     return Meal(
       id: snapshot.id,
+      name: data?['name'],
       foods: data?['foods']
     );
   }
@@ -23,11 +25,12 @@ class Meal {
 
   @override
   String toString() {
-    return 'Meal{id: $id,foods: $foods}';
+    return 'Meal{id: $id, name: $name, foods: $foods}';
   }
 
   Map<String, dynamic> toFirestore() {
     return {
+      "name": name,
       "foods": foods.map((e) => {
         "food": e.food,
         "quantity": e.quantity

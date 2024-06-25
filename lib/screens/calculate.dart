@@ -5,13 +5,21 @@ import 'package:nutrition_calculator_flutter/widgets/my_text_input.dart';
 import '../database.dart';
 import '../models/food.dart';
 
-class Calculate extends StatelessWidget {
-  Calculate({super.key, required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.addMeal, this.foods});
+class Calculate extends StatefulWidget {
+  Calculate({super.key, required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.updateMealName, required this.addMeal, this.foods});
 
   List<Map<String, dynamic>>? foods;
   void Function(String foodId) deleteFoodCalculate;
   void Function(String foodId, double quantity) updateFoodCalculate;
+  void Function(String mealName) updateMealName;
   void Function() addMeal;
+
+  @override
+  State<Calculate> createState() => _CalculateState();
+}
+
+class _CalculateState extends State<Calculate> {
+  String? _mealName;
   String _calculateNutrition(List<Map<String, dynamic>>? entries) {
     double calories = 0;
     double fat = 0;
@@ -36,9 +44,15 @@ class Calculate extends StatelessWidget {
       children: [
         Column(
           children: [
+            MyTextInputFormField(label: 'Meal name', border: UnderlineInputBorder(), padding: EdgeInsets.symmetric(horizontal: 20), onChanged: (value) {
+              setState(() {
+                _mealName = value;
+                if (value != null && value != '') widget.updateMealName(value);
+              });
+            },),
             Expanded(
               child: ListView(
-                  children: foods!.map((entry) {
+                  children: widget.foods!.map((entry) {
                     final food = entry['food'] as Food;
                     final quantity = entry['quantity'] as double;
                     return ListTile(
@@ -57,7 +71,7 @@ class Calculate extends StatelessWidget {
                             child: MyTextInputFormField(
                               label: 'Quantity (${food.unitOfMeasure.toShortString()})',
                               onChanged: (value) {
-                                if (value != null && value != '') updateFoodCalculate(food.id, double.parse(value));
+                                if (value != null && value != '') widget.updateFoodCalculate(food.id, double.parse(value));
                               },
                               type: InputType.Decimal,
                               border: const UnderlineInputBorder(),
@@ -66,7 +80,7 @@ class Calculate extends StatelessWidget {
                         ],
                       ),
                       trailing: TextButton(child: const Text('delete'), onPressed: () {
-                        deleteFoodCalculate(food.id);
+                        widget.deleteFoodCalculate(food.id);
                       }),
                     );
                   }).toList()
@@ -77,15 +91,15 @@ class Calculate extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 color: Theme.of(context).colorScheme.primary,
-                child: Text(_calculateNutrition(foods), textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 20))
+                child: Text(_calculateNutrition(widget.foods), textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 20))
               ),
             ),
           ],
         ),
-        Positioned(
+        if (_mealName != null && _mealName!.isNotEmpty) Positioned(
           bottom: 130,
           child: ElevatedButton(onPressed: () {
-            addMeal();
+            widget.addMeal();
           }, child: const Icon(Icons.save)),
         )
       ],
