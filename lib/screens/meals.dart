@@ -31,12 +31,15 @@ class _MealsState extends State<Meals> {
   }
 
   String _formatNutritionalValues(Food food, double quantity) {
-    double calories = food.calories * (quantity / food.quantity);
-    double fat = food.fat! * (quantity / food.quantity);
-    double carbs = food.carbs! * (quantity / food.quantity);
-    double protein = food.protein! * (quantity / food.quantity);
+    double calories = (food.calories * (quantity / food.quantity));
+    double fat = (food.fat! * (quantity / food.quantity));
+    double carbs = (food.carbs! * (quantity / food.quantity));
+    double protein = (food.protein! * (quantity / food.quantity));
     return 'calories: ${calories - calories.truncate() > 0 ? calories.toStringAsFixed(2) : calories.toInt()}kcal\n'
-        'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
+        'fat: ${fat.toStringAsFixed(2)}g, ' // if i put ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()} padding doesn't work (idk)
+        'carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, '
+        'protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g\n'
+        'quantity: ${quantity - quantity.truncate() > 0 ? quantity.toStringAsFixed(2) : quantity.toInt()}${food.unitOfMeasure.toShortString()}';
 
   }
 
@@ -44,8 +47,8 @@ class _MealsState extends State<Meals> {
     return foodCalculate.map((fc) {
       final food = widget.foods?.firstWhere((element) => element.id == fc.foodId);
       final quantity = fc.quantity;
-      return Container(
-        padding: const EdgeInsets.only(left: 30, top: 10, bottom: 10),
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
