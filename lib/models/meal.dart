@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'food.dart';
 
 class Meal {
 
@@ -17,7 +16,9 @@ class Meal {
     return Meal(
       id: snapshot.id,
       name: data?['name'],
-      foods: data?['foods']
+      foods: (data?['foods'] as List<dynamic>)
+          .map((item) => FoodCalculate.fromFirestore(item))
+          .toList()
     );
   }
 
@@ -31,7 +32,7 @@ class Meal {
     return {
       "name": name,
       "foods": foods.map((e) => {
-        "food": e.food,
+        "foodId": e.foodId,
         "quantity": e.quantity
       })
     };
@@ -39,13 +40,27 @@ class Meal {
 }
 
 class FoodCalculate {
-  DocumentReference<Food> food;
+  String foodId;
   double quantity;
 
-  FoodCalculate({required this.food, required this.quantity});
+  FoodCalculate({required this.foodId, required this.quantity});
+
+  factory FoodCalculate.fromFirestore(Map<String, dynamic> data) {
+    return FoodCalculate(
+      foodId: data['foodId'] ?? '',
+      quantity: (data['quantity'] as num).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      "foodId": foodId,
+      "quantity": quantity,
+    };
+  }
 
   @override
   String toString() {
-    return 'FoodCalculate{food: $food, quantity: $quantity}';
+    return 'FoodCalculate{foodId: $foodId, quantity: $quantity}';
   }
 }

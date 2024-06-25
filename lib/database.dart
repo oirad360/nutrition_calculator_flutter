@@ -51,36 +51,36 @@ class DatabaseService {
         }).toList());
   }
 
-  // Stream<List<Meal>> getUserMeals(String userUID) {
-  //   return _db.collection('user').doc(userUID).collection('meals')
-  //       .withConverter(
-  //       fromFirestore: Meal.fromFirestore,
-  //       toFirestore: (Meal meal, options) => meal.toFirestore()
-  //   ).snapshots().map((snapshot) => snapshot.docs.map((doc) {
-  //     final meal = doc.data();
-  //     return Meal(
-  //         id: doc.id,
-  //         name: meal.name,
-  //         foods: meal.foods
-  //     );
-  //   }).toList());
-  // }
-
-  Stream<List<MyMeal>> getUserMeals(String userUID) {
+  Stream<List<Meal>> getUserMeals(String userUID) {
     return _db.collection('user').doc(userUID).collection('meals')
-        .withConverter<Meal>(
-      fromFirestore: Meal.fromFirestore,
-      toFirestore: (Meal meal, options) => meal.toFirestore(),
-    ).snapshots().asyncMap((snapshot) async {
-      return await Future.wait(snapshot.docs.map((doc) async {
-        final meal = doc.data();
-        final foodList = await Future.wait(meal.foods.map((foodCalculate) async {
-          final foodDoc = await foodCalculate.food.get();
-          return MyFoodCalculate(food: foodDoc.data(), quantity: foodCalculate.quantity);
-        }).toList());
-        return MyMeal(name: meal.name, foods: foodList);
-      }).toList());
-    });
+        .withConverter(
+        fromFirestore: Meal.fromFirestore,
+        toFirestore: (Meal meal, options) => meal.toFirestore()
+    ).snapshots().map((snapshot) => snapshot.docs.map((doc) {
+      final meal = doc.data();
+      return Meal(
+          id: doc.id,
+          name: meal.name,
+          foods: meal.foods
+      );
+    }).toList());
   }
+
+  // Stream<List<MyMeal>> getUserMeals(String userUID) {
+  //   return _db.collection('user').doc(userUID).collection('meals')
+  //       .withConverter<Meal>(
+  //     fromFirestore: Meal.fromFirestore,
+  //     toFirestore: (Meal meal, options) => meal.toFirestore(),
+  //   ).snapshots().asyncMap((snapshot) async {
+  //     return await Future.wait(snapshot.docs.map((doc) async {
+  //       final meal = doc.data();
+  //       final foodList = await Future.wait(meal.foods.map((foodCalculate) async {
+  //         final foodDoc = await foodCalculate.food.get();
+  //         return MyFoodCalculate(food: foodDoc.data(), quantity: foodCalculate.quantity);
+  //       }).toList());
+  //       return MyMeal(name: meal.name, foods: foodList);
+  //     }).toList());
+  //   });
+  // }
 
 }

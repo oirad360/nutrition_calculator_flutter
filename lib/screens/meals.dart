@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/models/my_meal.dart';
 
+import '../models/food.dart';
+import '../models/meal.dart';
+
 
 class Meals extends StatelessWidget {
-  Meals({super.key, required this.meals});
+  Meals({super.key, required this.meals, required this.foods});
 
-  List<MyMeal>? meals;
-  String calculateNutrition(List<MyFoodCalculate> foods) {
+  List<Meal>? meals;
+  List<Food>? foods;
+  String calculateNutrition(List<FoodCalculate> foodCalculate) {
     double calories = 0;
     double fat = 0;
     double carbs = 0;
     double protein = 0;
-    for (var element in foods) {
-      final food = element.food;
-      final quantity = element.quantity;
+    for (var fc in foodCalculate) {
+      final food = foods?.firstWhere((element) => element.id == fc.foodId);
+      final quantity = fc.quantity;
       calories += food!.calories * (quantity/food.quantity);
       fat += food.fat! * (quantity/food.quantity);
       carbs += food.carbs! * (quantity/food.quantity);

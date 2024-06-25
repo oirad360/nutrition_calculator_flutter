@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   void _addMeal(String userUID, String name, List<Map<String, dynamic>> foods) async {
     // use Future.wait to wait all futures resolution
     List<FoodCalculate> newEntries = await Future.wait(foods.map((e) async {
-      return FoodCalculate(food: await _dbService.getFoodRef(userUID, e['food'].id), quantity: e['food'].quantity);
+      return FoodCalculate(foodId: e['food'].id, quantity: e['food'].quantity);
     }).toList());
 
     _dbService.addMeal(_authService.user!.uid, name, newEntries).then((snapshot) {
@@ -88,104 +88,103 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _authService.userChanges,
-      builder: (context, authSnapshot) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            titleTextStyle: Theme.of(context).textTheme.titleLarge,
-            title: Text(widget.title),
-            elevation: 7,
-            shadowColor: Colors.black,
-            leading: Builder(
-              builder: (context) {
-                return IconButton(
-                  icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.secondary),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                );
+        stream: _authService.userChanges,
+        builder: (context, authSnapshot) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              titleTextStyle: Theme.of(context).textTheme.titleLarge,
+              title: Text(widget.title),
+              elevation: 7,
+              shadowColor: Colors.black,
+              leading: Builder(
+                builder: (context) {
+                  return IconButton(
+                    icon: Icon(Icons.menu, color: Theme.of(context).colorScheme.secondary),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  );
+                },
+              ),
+              bottom: TabBar(
+                controller: _tabController,
+                labelPadding: const EdgeInsets.symmetric(horizontal: 10),
+                unselectedLabelColor: Colors.black45,
+                labelColor: Theme.of(context).colorScheme.secondary,
+                tabs: const [
+                  TabHorizontal(icon: Icons.table_chart, text: 'Food Table'),
+                  TabHorizontal(icon: Icons.calculate, text: 'Calculate'),
+                  TabHorizontal(icon: Icons.food_bank_rounded, text: 'Meals'),
+                ],
+              ),
+            ),
+            drawer: MyDrawer(selectedTile: SelectedTile.home),
+            body: authSnapshot.hasData ? StreamBuilder(
+                stream: _dbService.getUserFood(_authService.user!.uid),
+                builder: (context, foodSnapshot) {
+                  return TabBarView(
+                      controller: _tabController,
+                      children: [
+                        if (foodSnapshot.hasData) FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate)
+                        else if (foodSnapshot.connectionState == ConnectionState.waiting) Center(
+                            child: CircularProgressIndicator(
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                        ) else const Center(child: Text('Add some food!')),
+                        if(_foodsCalculate.isNotEmpty) Calculate(
+                            foods: _foodsCalculate,
+                            deleteFoodCalculate: _deleteFoodCalculate,
+                            updateFoodCalculate: _updateFoodCalculate,
+                            updateMealName: _updateMealName,
+                            addMeal: () {
+                              _addMeal(_authService.user!.uid, _mealName, _foodsCalculate);
+                            }
+                        )
+                        else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
+                        StreamBuilder(
+                            stream: _dbService.getUserMeals(_authService.user!.uid),
+                            builder: (context, mealSnapshot) {
+                              if (mealSnapshot.hasData && foodSnapshot.hasData) {
+                                return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data);
+                              } else if (mealSnapshot.connectionState == ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator(
+                                      color: Theme.of(context).colorScheme.primary,
+                                    )
+                                );
+                              }
+                              return const Center(child: Text('You didn\'t save any meal!'));
+                            }
+                        ),
+                      ]
+                  );
+                }
+            ) :
+            TabBarView(
+                controller: _tabController,
+                children: const [
+                  Center(
+                    child: Text('Login to show your foods!'),
+                  ),
+                  Center(
+                    child: Text('Login to calculate your meals!'),
+                  ),
+                  Center(
+                    child: Text('Login to show your meals!'),
+                  ),
+                ]
+            ),
+            floatingActionButton: _tabIndex == 0 && authSnapshot.hasData ? FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/addFood');
               },
-            ),
-            bottom: TabBar(
-              controller: _tabController,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 10),
-              unselectedLabelColor: Colors.black45,
-              labelColor: Theme.of(context).colorScheme.secondary,
-              tabs: const [
-                TabHorizontal(icon: Icons.table_chart, text: 'Food Table'),
-                TabHorizontal(icon: Icons.calculate, text: 'Calculate'),
-                TabHorizontal(icon: Icons.food_bank_rounded, text: 'Meals'),
-              ],
-            ),
-          ),
-          drawer: MyDrawer(selectedTile: SelectedTile.home),
-          body: authSnapshot.hasData ? TabBarView(
-                    controller: _tabController,
-                    children: [
-                      StreamBuilder(
-                          stream: _dbService.getUserFood(_authService.user!.uid),
-                          builder: (context, foodSnapshot) {
-                            if (foodSnapshot.hasData) return FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate);
-                            if (foodSnapshot.connectionState == ConnectionState.waiting) {
-                              return Center(
-                                  child: CircularProgressIndicator(
-                                    color: Theme.of(context).colorScheme.primary,
-                                  )
-                              );
-                            }
-                            return const Center(child: Text('Add some food!'));
-                          }
-                      ),
-                      if(_foodsCalculate.isNotEmpty) Calculate(
-                        foods: _foodsCalculate,
-                        deleteFoodCalculate: _deleteFoodCalculate,
-                        updateFoodCalculate: _updateFoodCalculate,
-                          updateMealName: _updateMealName,
-                        addMeal: () {
-                          _addMeal(_authService.user!.uid, _mealName, _foodsCalculate);
-                        }
-                      )
-                      else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
-                      StreamBuilder(
-                          stream: _dbService.getUserMeals(_authService.user!.uid),
-                          builder: (context, mealSnapshot) {
-                            if (mealSnapshot.hasData) return Meals(meals: mealSnapshot.data);
-                            if (mealSnapshot.connectionState == ConnectionState.waiting) {
-                              return Center(
-                                  child: CircularProgressIndicator(
-                                    color: Theme.of(context).colorScheme.primary,
-                                  )
-                              );
-                            }
-                            return const Center(child: Text('You didn\'t save any meal!'));
-                          }
-                      ),
-                    ]
-                ) :
-          TabBarView(
-            controller: _tabController,
-            children: const [
-              Center(
-                child: Text('Login to show your foods!'),
-              ),
-              Center(
-                child: Text('Login to calculate your meals!'),
-              ),
-              Center(
-                child: Text('Login to show your meals!'),
-              ),
-            ]
-          ),
-          floatingActionButton: _tabIndex == 0 && authSnapshot.hasData ? FloatingActionButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/addFood');
-            },
-            tooltip: 'Add food',
-            child: Icon(Icons.add, color: Theme.of(context).colorScheme.secondary),
-          ) : null,
-        );
-      }
+              tooltip: 'Add food',
+              child: Icon(Icons.add, color: Theme.of(context).colorScheme.secondary),
+            ) : null,
+          );
+        }
     );
   }
+
 }

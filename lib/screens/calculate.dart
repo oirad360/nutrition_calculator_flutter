@@ -41,7 +41,7 @@ class _CalculateState extends State<Calculate> {
       children: [
         Column(
           children: [
-            MyTextInputFormField(label: 'Meal name', border: UnderlineInputBorder(), padding: EdgeInsets.symmetric(horizontal: 20), onChanged: (value) {
+            MyTextInputFormField(label: 'Meal name', border: const UnderlineInputBorder(), padding: const EdgeInsets.symmetric(horizontal: 20), onChanged: (value) {
               setState(() {
                 _mealName = value;
                 if (value != null && value != '') widget.updateMealName(value);
