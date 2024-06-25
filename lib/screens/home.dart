@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/auth.dart';
+import 'package:nutrition_calculator_flutter/models/meal.dart';
 import 'package:nutrition_calculator_flutter/screens/calculate.dart';
 import 'package:nutrition_calculator_flutter/screens/food_table.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
@@ -22,7 +23,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   final DatabaseService _dbService = DatabaseService();
   late TabController _tabController;
   int _tabIndex = 0;
-  List<Map<String, dynamic>> _foodCalculate = [];
+  List<Map<String, dynamic>> _foodsCalculate = [];
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   void _addFoodCalculate(double quantity, Food food) {
     setState(() {
-      _foodCalculate.add({
+      _foodsCalculate.add({
         'food': food,
         'quantity': quantity
       });
@@ -48,27 +49,26 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   void _deleteFoodCalculate(String foodId) {
     setState(() {
-      _foodCalculate.removeWhere((entry) => entry['food'].id == foodId);
+      _foodsCalculate.removeWhere((entry) => entry['food'].id == foodId);
     });
   }
 
   void _updateFoodCalculate(String foodId, double quantity) {
     setState(() {
-      _foodCalculate = _foodCalculate.map((entry) => entry['food'].id != foodId ? entry : {
+      _foodsCalculate = _foodsCalculate.map((entry) => entry['food'].id != foodId ? entry : {
         'food': entry['food'],
         'quantity': quantity
       }).toList();
     });
   }
 
-  void _addMeal(String userUID, List<Map<String, dynamic>> entries) async {
+  void _addMeal(String userUID, List<Map<String, dynamic>> foods) async {
     // use Future.wait to wait all futures resolution
-    List<Map<String, dynamic>> newEntries = await Future.wait(entries.map((e) async {
-      return {
-        'food': await _dbService.getFoodRef(userUID, e['food'].id),
-        'quantity': e['food'].quantity
-      };
+    List<FoodCalculate> newEntries = await Future.wait(foods.map((e) async {
+      return FoodCalculate(food: await _dbService.getFoodRef(userUID, e['food'].id), quantity: e['food'].quantity);
     }).toList());
+
+    print(newEntries);
 
     _dbService.addMeal(_authService.user!.uid, newEntries).then((snapshot) {
       showDialog(context: context, builder: (context) {
@@ -114,25 +114,29 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
           ),
           drawer: MyDrawer(selectedTile: SelectedTile.home),
-          body: authSnapshot.hasData ? StreamBuilder(
-              stream: _dbService.getUserFood(_authService.user!.uid),
-              builder: (context, foodSnapshot) {
-                return TabBarView(
+          body: authSnapshot.hasData ? TabBarView(
                     controller: _tabController,
                     children: [
-                      if (foodSnapshot.hasData) FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate,)
-                      else if (foodSnapshot.connectionState == ConnectionState.waiting)
-                        Center(
-                            child: CircularProgressIndicator(
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                        ) else const Center(child: Text('Add some food!')),
-                      if(_foodCalculate.isNotEmpty) Calculate(
-                        entries: _foodCalculate,
+                      StreamBuilder(
+                          stream: _dbService.getUserFood(_authService.user!.uid),
+                          builder: (context, foodSnapshot) {
+                            if (foodSnapshot.hasData) return FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate);
+                            if (foodSnapshot.connectionState == ConnectionState.waiting) {
+                              return Center(
+                                  child: CircularProgressIndicator(
+                                    color: Theme.of(context).colorScheme.primary,
+                                  )
+                              );
+                            }
+                            return const Center(child: Text('Add some food!'));
+                          }
+                      ),
+                      if(_foodsCalculate.isNotEmpty) Calculate(
+                        foods: _foodsCalculate,
                         deleteFoodCalculate: _deleteFoodCalculate,
                         updateFoodCalculate: _updateFoodCalculate,
                         addMeal: () {
-                          _addMeal(_authService.user!.uid, _foodCalculate);
+                          _addMeal(_authService.user!.uid, _foodsCalculate);
                         }
                       )
                       else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
@@ -140,9 +144,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         child: Text('Meals'),
                       ),
                     ]
-                );
-              }
-          ) :
+                ) :
           TabBarView(
             controller: _tabController,
             children: const [

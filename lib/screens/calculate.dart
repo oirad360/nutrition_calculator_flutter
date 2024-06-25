@@ -6,9 +6,9 @@ import '../database.dart';
 import '../models/food.dart';
 
 class Calculate extends StatelessWidget {
-  Calculate({super.key, required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.addMeal, this.entries});
+  Calculate({super.key, required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.addMeal, this.foods});
 
-  List<Map<String, dynamic>>? entries;
+  List<Map<String, dynamic>>? foods;
   void Function(String foodId) deleteFoodCalculate;
   void Function(String foodId, double quantity) updateFoodCalculate;
   void Function() addMeal;
@@ -38,7 +38,7 @@ class Calculate extends StatelessWidget {
           children: [
             Expanded(
               child: ListView(
-                  children: entries!.map((entry) {
+                  children: foods!.map((entry) {
                     final food = entry['food'] as Food;
                     final quantity = entry['quantity'] as double;
                     return ListTile(
@@ -77,7 +77,7 @@ class Calculate extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 color: Theme.of(context).colorScheme.primary,
-                child: Text(_calculateNutrition(entries), textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 20))
+                child: Text(_calculateNutrition(foods), textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 20))
               ),
             ),
           ],

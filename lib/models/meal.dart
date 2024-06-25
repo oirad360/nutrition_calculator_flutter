@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'food.dart';
+
 class Meal {
-  List<Map<String, dynamic>> foods;
+
+  List<FoodCalculate> foods;
   String id;
 
   Meal({required this.foods, this.id = '',});
@@ -25,7 +28,22 @@ class Meal {
 
   Map<String, dynamic> toFirestore() {
     return {
-      "foods": foods
+      "foods": foods.map((e) => {
+        "food": e.food,
+        "quantity": e.quantity
+      })
     };
+  }
+}
+
+class FoodCalculate {
+  DocumentReference<Food> food;
+  double quantity;
+
+  FoodCalculate({required this.food, required this.quantity});
+
+  @override
+  String toString() {
+    return 'FoodCalculate{food: $food, quantity: $quantity}';
   }
 }

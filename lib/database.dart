@@ -21,7 +21,7 @@ class DatabaseService {
         ).doc(foodId);
   }
 
-  Future<DocumentReference<Meal>> addMeal(String userUID, List<Map<String, dynamic>> entries) async {
+  Future<DocumentReference<Meal>> addMeal(String userUID, List<FoodCalculate> entries) async {
     return _db.collection('user').doc(userUID).collection('meals')
         .withConverter(
         fromFirestore: Meal.fromFirestore,
@@ -48,5 +48,19 @@ class DatabaseService {
             protein: food.protein,
           );
         }).toList());
+  }
+
+  Stream<List<Meal>> getUserMeals(String userUID) {
+    return _db.collection('user').doc(userUID).collection('meals')
+        .withConverter(
+        fromFirestore: Meal.fromFirestore,
+        toFirestore: (Meal meal, options) => meal.toFirestore()
+    ).snapshots().map((snapshot) => snapshot.docs.map((doc) {
+      final meal = doc.data();
+      return Meal(
+        id: doc.id,
+        foods: meal.foods
+      );
+    }).toList());
   }
 }
