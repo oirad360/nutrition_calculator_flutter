@@ -65,7 +65,7 @@ class _MealsState extends State<Meals> {
     return ListView(
       children: widget.meals!.map((meal) {
         return ExpansionTile(
-          title: Text(meal.name),
+          title: Text(meal.name, style: const TextStyle(fontWeight: FontWeight.bold),),
           subtitle: Text(_calculateNutrition(meal.foods)),
           expandedAlignment: Alignment.centerLeft,
           children: _buildFoodDetails(meal.foods),

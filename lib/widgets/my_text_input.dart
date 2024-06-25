@@ -61,6 +61,7 @@ class _MyTextInputFormFieldState extends State<MyTextInputFormField> {
             maxLength: widget.maxLength,
             maxLines: widget.obscureText ? 1 : widget.maxLines,
             minLines: widget.obscureText ? 1 : widget.minLines ?? widget.maxLines,
+            textCapitalization: TextCapitalization.sentences,
             initialValue: widget.initialValue,
             onChanged: (value) {
               setState(() {

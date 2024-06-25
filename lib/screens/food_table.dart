@@ -11,7 +11,7 @@ class FoodTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
         children: foods!.map((food) => ListTile(
-          title: Text(food.name),
+          title: Text(food.name, style: const TextStyle(fontWeight: FontWeight.bold)),
           subtitle: Text('calories: ${food.calories - food.calories.truncate() > 0 ? food.calories : food.calories.toInt()}kcal\n'
           'fat: ${food.fat! - food.fat!.truncate() > 0 ? food.fat : food.fat?.toInt()}g, '
           'carbs: ${food.carbs! - food.carbs!.truncate() > 0 ? food.carbs : food.carbs?.toInt()}g, '
