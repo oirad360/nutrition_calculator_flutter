@@ -30,8 +30,8 @@ class _CalculateState extends State<Calculate> {
       carbs += food.carbs! * (quantity/food.quantity);
       protein += food.protein! * (quantity/food.quantity);
     });
-    return 'calories: ${calories - calories.truncate() > 0 ? calories : calories.toInt()}kcal\n'
-        'fat: ${fat - fat.truncate() > 0 ? fat : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein : protein.toInt()}g';
+    return 'calories: ${calories - calories.truncate() > 0 ? calories.toStringAsFixed(2) : calories.toInt()}kcal\n'
+        'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
   }
 
   @override
