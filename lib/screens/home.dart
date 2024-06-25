@@ -56,6 +56,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   void _updateFoodCalculate(String foodId, double quantity) {
+    print({
+      'food': foodId,
+      'quantity': quantity
+    });
     setState(() {
       _foodsCalculate = _foodsCalculate.map((entry) => entry['food'].id != foodId ? entry : {
         'food': entry['food'],
@@ -73,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   void _addMeal(String userUID, String name, List<Map<String, dynamic>> foods) async {
     // use Future.wait to wait all futures resolution
     List<FoodCalculate> newEntries = await Future.wait(foods.map((e) async {
-      return FoodCalculate(foodId: e['food'].id, quantity: e['food'].quantity);
+      return FoodCalculate(foodId: e['food'].id, quantity: e['quantity']);
     }).toList());
 
     _dbService.addMeal(_authService.user!.uid, name, newEntries).then((snapshot) {
@@ -126,7 +130,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   return TabBarView(
                       controller: _tabController,
                       children: [
-                        if (foodSnapshot.hasData) FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate)
+                        if (foodSnapshot.hasData && foodSnapshot.data!.isNotEmpty) FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate)
+                        else if (foodSnapshot.hasData && foodSnapshot.data!.isEmpty) const Center(child: Text('Add some food!'))
                         else if (foodSnapshot.connectionState == ConnectionState.waiting) Center(
                             child: CircularProgressIndicator(
                               color: Theme.of(context).colorScheme.primary,
@@ -145,9 +150,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         StreamBuilder(
                             stream: _dbService.getUserMeals(_authService.user!.uid),
                             builder: (context, mealSnapshot) {
-                              if (mealSnapshot.hasData && foodSnapshot.hasData) {
+                              if (mealSnapshot.hasData && mealSnapshot.data!.isNotEmpty) {
                                 return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data);
-                              } else if (mealSnapshot.connectionState == ConnectionState.waiting) {
+                              } else if (mealSnapshot.hasData && mealSnapshot.data!.isEmpty) {
+                                return const Center(child: Text('You didn\'t save any meal!'));
+                              }
+                              else if (mealSnapshot.connectionState == ConnectionState.waiting) {
                                 return Center(
                                     child: CircularProgressIndicator(
                                       color: Theme.of(context).colorScheme.primary,

@@ -34,6 +34,16 @@ class _CalculateState extends State<Calculate> {
         'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
   }
 
+  String _formatNutritionalValues(Food food, double quantity) {
+    double calories = food.calories * (quantity / food.quantity);
+    double fat = food.fat! * (quantity / food.quantity);
+    double carbs = food.carbs! * (quantity / food.quantity);
+    double protein = food.protein! * (quantity / food.quantity);
+    return 'calories: ${calories - calories.truncate() > 0 ? calories.toStringAsFixed(2) : calories.toInt()}kcal\n'
+        'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -57,12 +67,7 @@ class _CalculateState extends State<Calculate> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                              'calories: ${food.calories * (quantity/food.quantity)}kcal\n'
-                              'fat: ${food.fat! * (quantity/food.quantity)}g, '
-                              'carbs: ${food.carbs! * (quantity/food.quantity)}g, '
-                              'protein: ${food.protein! * (quantity/food.quantity)}g'
-                          ),
+                          Text(_formatNutritionalValues(food, quantity)),
                           SizedBox(
                             width: 135,
                             child: MyTextInputFormField(

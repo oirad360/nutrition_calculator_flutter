@@ -26,23 +26,32 @@ class _MealsState extends State<Meals> {
       carbs += food.carbs! * (quantity / food.quantity);
       protein += food.protein! * (quantity / food.quantity);
     }
-    return 'calories: ${calories - calories.truncate() > 0 ? calories : calories.toInt()}kcal\n'
-        'fat: ${fat - fat.truncate() > 0 ? fat : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein : protein.toInt()}g';
+    return 'calories: ${calories - calories.truncate() > 0 ? calories.toStringAsFixed(2) : calories.toInt()}kcal\n'
+        'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
+  }
+
+  String _formatNutritionalValues(Food food, double quantity) {
+    double calories = food.calories * (quantity / food.quantity);
+    double fat = food.fat! * (quantity / food.quantity);
+    double carbs = food.carbs! * (quantity / food.quantity);
+    double protein = food.protein! * (quantity / food.quantity);
+    return 'calories: ${calories - calories.truncate() > 0 ? calories.toStringAsFixed(2) : calories.toInt()}kcal\n'
+        'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
+
   }
 
   List<Widget> _buildFoodDetails(List<FoodCalculate> foodCalculate) {
     return foodCalculate.map((fc) {
       final food = widget.foods?.firstWhere((element) => element.id == fc.foodId);
       final quantity = fc.quantity;
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Text(
-          '${food!.name} \n'
-              'Calories: ${(food.calories * (quantity / food.quantity)).toStringAsFixed(2)}kcal\n'
-              'Fat: ${(food.fat! * (quantity / food.quantity)).toStringAsFixed(2)}g, '
-              'Carbs: ${(food.carbs! * (quantity / food.quantity)).toStringAsFixed(2)}g, '
-              'Protein: ${(food.protein! * (quantity / food.quantity)).toStringAsFixed(2)}g\n'
-              'Quantity: ${quantity.toStringAsFixed(2)}, ',
+      return Container(
+        padding: const EdgeInsets.only(left: 30, top: 10, bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(food!.name, style: const TextStyle(fontWeight: FontWeight.bold),),
+            Text(_formatNutritionalValues(food, quantity)),
+          ],
         ),
       );
     }).toList();
@@ -55,8 +64,8 @@ class _MealsState extends State<Meals> {
         return ExpansionTile(
           title: Text(meal.name),
           subtitle: Text(_calculateNutrition(meal.foods)),
-          children: _buildFoodDetails(meal.foods),
           expandedAlignment: Alignment.centerLeft,
+          children: _buildFoodDetails(meal.foods),
         );
       }).toList(),
     );
