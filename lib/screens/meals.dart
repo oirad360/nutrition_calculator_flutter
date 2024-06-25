@@ -35,11 +35,11 @@ class _MealsState extends State<Meals> {
     double fat = (food.fat! * (quantity / food.quantity));
     double carbs = (food.carbs! * (quantity / food.quantity));
     double protein = (food.protein! * (quantity / food.quantity));
-    return 'calories: ${calories - calories.truncate() > 0 ? calories.toStringAsFixed(2) : calories.toInt()}kcal\n'
-        'fat: ${fat.toStringAsFixed(2)}g, ' // if i put ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()} padding doesn't work (idk)
-        'carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, '
-        'protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g\n'
-        'quantity: ${quantity - quantity.truncate() > 0 ? quantity.toStringAsFixed(2) : quantity.toInt()}${food.unitOfMeasure.toShortString()}';
+    return 'calories: ${calories.toStringAsFixed(2)}kcal\n' // padding is broken (idk, maybe this string is the problem)
+        'fat: ${fat.toStringAsFixed(2)}g, '
+        'carbs: ${carbs.toStringAsFixed(2)}g, '
+        'protein: ${protein.toStringAsFixed(2)}g\n'
+        'quantity: ${quantity.toStringAsFixed(2)}${food.unitOfMeasure.toShortString()}';
 
   }
 

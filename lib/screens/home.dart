@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               _addMeal(_authService.user!.uid, _mealName, _foodsCalculate);
                             }
                         )
-                        else const Center(child: Text('Long press on a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
+                        else const Center(child: Text('Select a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
                         StreamBuilder(
                             stream: _dbService.getUserMeals(_authService.user!.uid),
                             builder: (context, mealSnapshot) {

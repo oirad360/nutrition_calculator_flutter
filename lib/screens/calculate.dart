@@ -52,7 +52,7 @@ class _CalculateState extends State<Calculate> {
         Column(
           children: [
             MyTextInputFormField(
-              label: 'Meal name',
+              label: 'Insert a name to save this meal',
               border: const UnderlineInputBorder(),
               padding: const EdgeInsets.symmetric(horizontal: 20),
               maxLength: 75,
