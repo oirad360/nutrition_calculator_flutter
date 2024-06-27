@@ -38,7 +38,7 @@ class _AddFoodState extends State<AddFood> {
       backgroundColor: Theme.of(context).colorScheme.primary,
       appBar: AppBar(
         titleTextStyle: Theme.of(context).textTheme.titleLarge,
-        title: const Text('Add food'),
+        title: _food.id != '' ? const Text('Modify food') : const Text('Add food'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         leading: Builder(
           builder: (context) {
