@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import '../models/food.dart';
 
 class FoodTable extends StatelessWidget {
-  FoodTable({super.key, required this.foods, required this.addFoodCalculate});
+  FoodTable({super.key, required this.foods, required this.addFoodCalculate, required this.deleteFood, required this.updateFood});
 
   List<Food>? foods;
   void Function(double quantity, Food food) addFoodCalculate;
+  void Function(String foodID) deleteFood;
+  void Function(Food food) updateFood;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +28,28 @@ class FoodTable extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                   child: Text(food.description!),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                  child: TextButton(onPressed: () {
-                    addFoodCalculate(food.quantity, food);
-                  }, child: const Text('Calculate meal')),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left:15, top: 5, bottom: 5),
+                      child: TextButton(onPressed: () {
+                        addFoodCalculate(food.quantity, food);
+                      }, child: const Icon(Icons.calculate)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: TextButton(onPressed: () {
+                        updateFood(food);
+                      }, child: const Icon(Icons.border_color)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: TextButton(onPressed: () {
+                        deleteFood(food.id);
+                      }, child: const Icon(Icons.delete_forever)),
+                    ),
+                  ],
                 ),
               ],
             )

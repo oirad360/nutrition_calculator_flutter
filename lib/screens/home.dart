@@ -23,8 +23,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   final AuthService _authService = AuthService();
   final DatabaseService _dbService = DatabaseService();
   late TabController _tabController;
-  late String _mealName;
+  String _mealName = '';
+  String _mealID = '';
   int _tabIndex = 0;
+  List<Food> _foods = [];
   List<Map<String, dynamic>> _foodsCalculate = [];
 
   @override
@@ -56,10 +58,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   void _updateFoodCalculate(String foodId, double quantity) {
-    print({
-      'food': foodId,
-      'quantity': quantity
-    });
     setState(() {
       _foodsCalculate = _foodsCalculate.map((entry) => entry['food'].id != foodId ? entry : {
         'food': entry['food'],
@@ -74,18 +72,91 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
-  void _addMeal(String userUID, String name, List<Map<String, dynamic>> foods) async {
+  void _addMeal(String name, List<Map<String, dynamic>> foods) async {
     // use Future.wait to wait all futures resolution
+    List<String> foodIds = [];
     List<FoodCalculate> newEntries = await Future.wait(foods.map((e) async {
+      foodIds.add(e['food'].id);
       return FoodCalculate(foodId: e['food'].id, quantity: e['quantity']);
     }).toList());
 
-    _dbService.addMeal(_authService.user!.uid, name, newEntries).then((snapshot) {
+    _dbService.addMeal(_authService.user!.uid, Meal(foodIds: foodIds, name: name, foods: newEntries)).then((snapshot) {
+      setState(() {
+        _mealID = snapshot.id;
+      });
       showDialog(context: context, builder: (context) {
         return const AlertDialog(
           title: Text('New meal added!'),
         );
       });
+    });
+  }
+
+  void _deleteMeal(String mealID) {
+    _dbService.deleteMeal(_authService.user!.uid, mealID).then((snapshot) {
+      showDialog(context: context, builder: (context) {
+        return const AlertDialog(
+          title: Text('Meal deleted!'),
+        );
+      });
+    });
+  }
+
+  void _fillUpdateMeal(Meal meal) {
+    setState(() {
+      _foodsCalculate = [];
+      for (var element in meal.foods) {
+        _foodsCalculate.add({
+          'food': _foods.firstWhere((food) => food.id == element.foodId),
+          'quantity': element.quantity
+        });
+      }
+      _mealName = meal.name;
+      _mealID = meal.id;
+    });
+    _tabController.animateTo(1);
+    _tabIndex = 1;
+  }
+
+  void _deleteFood(String foodID) {
+    _dbService.deleteFood(_authService.user!.uid, foodID).then((snapshot) {
+      setState(() {
+        _foodsCalculate = _foodsCalculate.where((element) => element['food'].id != foodID).toList();
+      });
+      showDialog(context: context, builder: (context) {
+        return const AlertDialog(
+          title: Text('Food deleted!'),
+        );
+      });
+    });
+  }
+
+  void _updateFood(Food food) async {
+    Navigator.pushNamed(context, "/addFood", arguments: food);
+  }
+
+  void _updateMeal(String name, List<Map<String, dynamic>> foods) async {
+    // use Future.wait to wait all futures resolution
+    List<String> foodIds = [];
+    List<FoodCalculate> newEntries = await Future.wait(foods.map((e) async {
+      foodIds.add(e['food'].id);
+      return FoodCalculate(foodId: e['food'].id, quantity: e['quantity']);
+    }).toList());
+
+    _dbService.updateMeal(_authService.user!.uid, Meal(foodIds: foodIds, name: name, foods: newEntries, id: _mealID)).then((snapshot) {
+      showDialog(context: context, builder: (context) {
+        return const AlertDialog(
+          title: Text('Meal modified!'),
+        );
+      });
+    });
+  }
+
+  void _undoUpdate() {
+    setState(() {
+      _mealID = '';
+      _mealName = '';
+      _foodsCalculate = [];
     });
   }
 
@@ -125,12 +196,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
             drawer: MyDrawer(selectedTile: SelectedTile.home),
             body: authSnapshot.hasData ? StreamBuilder(
-                stream: _dbService.getUserFood(_authService.user!.uid),
+                stream: _dbService.getFood(_authService.user!.uid),
                 builder: (context, foodSnapshot) {
+                  if (foodSnapshot.hasData) {
+                    _foods = foodSnapshot.data as List<Food>;
+                  }
                   return TabBarView(
                       controller: _tabController,
                       children: [
-                        if (foodSnapshot.hasData && foodSnapshot.data!.isNotEmpty) FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate)
+                        if (foodSnapshot.hasData && foodSnapshot.data!.isNotEmpty) FoodTable(foods: foodSnapshot.data, addFoodCalculate: _addFoodCalculate, deleteFood: _deleteFood, updateFood: _updateFood,)
                         else if (foodSnapshot.hasData && foodSnapshot.data!.isEmpty) const Center(child: Text('Add some food!'))
                         else if (foodSnapshot.connectionState == ConnectionState.waiting) Center(
                             child: CircularProgressIndicator(
@@ -138,20 +212,26 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             )
                         ) else const Center(child: Text('Add some food!')),
                         if(_foodsCalculate.isNotEmpty) Calculate(
-                            foods: _foodsCalculate,
-                            deleteFoodCalculate: _deleteFoodCalculate,
-                            updateFoodCalculate: _updateFoodCalculate,
-                            updateMealName: _updateMealName,
-                            addMeal: () {
-                              _addMeal(_authService.user!.uid, _mealName, _foodsCalculate);
-                            }
+                          mealID: _mealID,
+                          mealName: _mealName,
+                          foods: _foodsCalculate,
+                          deleteFoodCalculate: _deleteFoodCalculate,
+                          updateFoodCalculate: _updateFoodCalculate,
+                          updateMealName: _updateMealName,
+                          updateMeal: () {
+                            _updateMeal(_mealName, _foodsCalculate);
+                          },
+                          addMeal: () {
+                            _addMeal(_mealName, _foodsCalculate);
+                          },
+                          undoUpdate: _undoUpdate,
                         )
                         else const Center(child: Text('Select a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
                         StreamBuilder(
-                            stream: _dbService.getUserMeals(_authService.user!.uid),
+                            stream: _dbService.getMeals(_authService.user!.uid),
                             builder: (context, mealSnapshot) {
                               if (mealSnapshot.hasData && mealSnapshot.data!.isNotEmpty) {
-                                return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data);
+                                return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data, deleteMeal: _deleteMeal, fillUpdateMeal: _fillUpdateMeal,);
                               } else if (mealSnapshot.hasData && mealSnapshot.data!.isEmpty) {
                                 return const Center(child: Text('You didn\'t save any meal!'));
                               }

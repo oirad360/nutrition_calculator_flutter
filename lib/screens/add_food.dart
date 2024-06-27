@@ -8,7 +8,9 @@ import '../auth.dart';
 import '../widgets/my_text_input.dart';
 
 class AddFood extends StatefulWidget {
-  const AddFood({super.key});
+  AddFood({super.key, this.food});
+
+  Food? food;
 
   @override
   State<AddFood> createState() => _AddFoodState();
@@ -17,12 +19,19 @@ class AddFood extends StatefulWidget {
 class _AddFoodState extends State<AddFood> {
   final DatabaseService _dbService = DatabaseService();
   final AuthService _authService = AuthService();
-  final Food _food = Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0);
+  late Food _food;
   final List<DropdownMenuItem> _dropDownList =<DropdownMenuItem>[
     const DropdownMenuItem(value: UnitOfMeasure.g, child: Text('g')),
     const DropdownMenuItem(value: UnitOfMeasure.ml, child: Text('ml')),
     const DropdownMenuItem(value: UnitOfMeasure.portion, child: Text('portions'))
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _food = widget.food??Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,17 +163,31 @@ class _AddFoodState extends State<AddFood> {
           (_food.fat! > 0 || _food.carbs! > 0 || _food.protein! > 0) ?
       FloatingActionButton(
         onPressed: () {
-          _dbService.addFood(_authService.user!.uid, _food).then((snapshot) => {
-            showDialog(context: context, builder: (context) {
-              return const AlertDialog(
-                title: Text('New food added!'),
-              );
-            })
-          });
+          if (_food.id != '') {
+            _dbService.updateFood(_authService.user!.uid, _food).then((snapshot) => {
+              showDialog(context: context, builder: (context) {
+                return const AlertDialog(
+                  title: Text('Food modified!'),
+                );
+              })
+            });
+          } else {
+            _dbService.addFood(_authService.user!.uid, _food).then((snapshot) => {
+              setState(() {
+                _food.id = snapshot.id;
+              }),
+              showDialog(context: context, builder: (context) {
+                return const AlertDialog(
+                  title: Text('New food added!'),
+                );
+              })
+            });
+          }
+
         },
-        tooltip: 'Add food',
+        tooltip: _food.id != '' ? 'Modify food' : 'Add food',
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: Icon(Icons.check, color: Theme.of(context).colorScheme.primary),
+        child: Icon(_food.id != '' ? Icons.border_color : Icons.check, color: Theme.of(context).colorScheme.primary),
       ) : null,
     );
   }

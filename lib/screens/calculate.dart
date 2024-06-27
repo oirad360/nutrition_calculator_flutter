@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/widgets/my_text_input.dart';
 import '../models/food.dart';
+import '../models/meal.dart';
 
 class Calculate extends StatefulWidget {
-  Calculate({super.key, required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.updateMealName, required this.addMeal, this.foods});
+  Calculate({super.key, this.mealName = '', this.mealID = '', required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.updateMealName, required this.addMeal, this.foods, required this.updateMeal, required this.undoUpdate});
 
   List<Map<String, dynamic>>? foods;
+  String mealID;
+  String mealName;
   void Function(String foodId) deleteFoodCalculate;
   void Function(String foodId, double quantity) updateFoodCalculate;
   void Function(String mealName) updateMealName;
+  void Function() updateMeal;
   void Function() addMeal;
+  void Function() undoUpdate;
 
   @override
   State<Calculate> createState() => _CalculateState();
@@ -43,6 +48,14 @@ class _CalculateState extends State<Calculate> {
         'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
   }
 
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _mealName = widget.mealName;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +68,7 @@ class _CalculateState extends State<Calculate> {
               label: 'Insert a name to save this meal',
               border: const UnderlineInputBorder(),
               padding: const EdgeInsets.symmetric(horizontal: 20),
+              initialValue: _mealName,
               maxLength: 75,
               onChanged: (value) {
               setState(() {
@@ -86,7 +100,7 @@ class _CalculateState extends State<Calculate> {
                           )
                         ],
                       ),
-                      trailing: TextButton(child: const Text('delete'), onPressed: () {
+                      trailing: TextButton(child: const Icon(Icons.delete), onPressed: () {
                         widget.deleteFoodCalculate(food.id);
                       }),
                     );
@@ -106,8 +120,19 @@ class _CalculateState extends State<Calculate> {
         if (_mealName != null && _mealName!.isNotEmpty) Positioned(
           bottom: 130,
           child: ElevatedButton(onPressed: () {
-            widget.addMeal();
-          }, child: const Icon(Icons.save)),
+            if (widget.mealID != '') {
+              widget.updateMeal();
+            } else {
+              widget.addMeal();
+            }
+          }, child: widget.mealID != '' ? const Icon(Icons.border_color) : const Icon(Icons.save)),
+        ),
+        if (widget.mealID != '') Positioned(
+          bottom: 130,
+          right: 50,
+          child: ElevatedButton(onPressed: () {
+            widget.undoUpdate();
+          }, child: const Icon(Icons.undo)),
         )
       ],
     );

@@ -3,10 +3,12 @@ import '../models/food.dart';
 import '../models/meal.dart';
 
 class Meals extends StatefulWidget {
-  Meals({super.key, required this.meals, required this.foods});
+  Meals({super.key, required this.meals, required this.foods, required this.deleteMeal, required this.fillUpdateMeal});
 
   List<Meal>? meals;
   List<Food>? foods;
+  void Function(String mealID) deleteMeal;
+  void Function(Meal meal) fillUpdateMeal;
 
   @override
   State<Meals> createState() => _MealsState();
@@ -64,11 +66,33 @@ class _MealsState extends State<Meals> {
   Widget build(BuildContext context) {
     return ListView(
       children: widget.meals!.map((meal) {
+        List<Widget> children = _buildFoodDetails(meal.foods);
+        children.add(
+          Padding(
+            padding: const EdgeInsets.all(0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  child: TextButton(onPressed: () {
+                    widget.fillUpdateMeal(meal);
+                  }, child: const Icon(Icons.border_color)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  child: TextButton(onPressed: () {
+                    widget.deleteMeal(meal.id);
+                  }, child: const Icon(Icons.delete_forever)),
+                ),
+              ],
+            ),
+          ),
+        );
         return ExpansionTile(
           title: Text(meal.name, style: const TextStyle(fontWeight: FontWeight.bold),),
           subtitle: Text(_calculateNutrition(meal.foods)),
-          expandedAlignment: Alignment.centerLeft,
-          children: _buildFoodDetails(meal.foods),
+          children: children,
         );
       }).toList(),
     );

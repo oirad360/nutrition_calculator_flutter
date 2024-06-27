@@ -22,15 +22,7 @@ class DatabaseService {
         ).doc(foodId);
   }
 
-  Future<DocumentReference<Meal>> addMeal(String userUID, String name, List<FoodCalculate> entries) async {
-    return _db.collection('user').doc(userUID).collection('meals')
-        .withConverter(
-        fromFirestore: Meal.fromFirestore,
-        toFirestore: (Meal meal, options) => meal.toFirestore()
-    ).add(Meal(name: name, foods: entries));
-  }
-
-  Stream<List<Food>> getUserFood(String userUID) {
+  Stream<List<Food>> getFood(String userUID) {
     return _db.collection('user').doc(userUID).collection('foods')
         .withConverter(
           fromFirestore: Food.fromFirestore,
@@ -51,19 +43,80 @@ class DatabaseService {
         }).toList());
   }
 
-  Stream<List<Meal>> getUserMeals(String userUID) {
+  Future<void> updateFood(String userUID, Food food) {
+    return _db.collection('user').doc(userUID).collection('foods')
+        .withConverter(
+          fromFirestore: Food.fromFirestore,
+          toFirestore: (Food food, options) => food.toFirestore()
+        ).doc(food.id).update(food.toFirestore());
+  }
+
+  Future<void> deleteFood(String userUID, String foodID) async {
+    var userRef = _db.collection('user').doc(userUID);
+    // Step 1: Query per trovare i pasti che contengono foodID nel campo 'foodIds'
+    var mealsQuerySnapshot = await userRef.collection('meals')
+        .where('foodIds', arrayContains: foodID)
+        .withConverter(
+        fromFirestore: Meal.fromFirestore,
+        toFirestore: (Meal meal, options) => meal.toFirestore()
+    ).get();
+
+    var batch = _db.batch();
+
+    for (var mealDoc in mealsQuerySnapshot.docs) {
+      var meal = mealDoc.data();
+      var updatedFoods = meal.foods.where((food) => food.foodId != foodID).toList();
+      var updatedFoodIds = meal.foodIds.where((id) => id != foodID).toList();
+      meal.foods = updatedFoods;
+      meal.foodIds = updatedFoodIds;
+
+      if (updatedFoodIds.isEmpty) {
+        batch.delete(mealDoc.reference);
+      } else {
+        batch.update(mealDoc.reference, meal.toFirestore());
+      }
+    }
+
+    batch.delete(userRef.collection('foods').doc(foodID));
+
+    await batch.commit();
+  }
+
+
+  Future<DocumentReference<Meal>> addMeal(String userUID, Meal meal) async {
     return _db.collection('user').doc(userUID).collection('meals')
         .withConverter(
         fromFirestore: Meal.fromFirestore,
         toFirestore: (Meal meal, options) => meal.toFirestore()
-    ).snapshots().map((snapshot) => snapshot.docs.map((doc) {
-      final meal = doc.data();
-      return Meal(
-          id: doc.id,
-          name: meal.name,
-          foods: meal.foods
-      );
-    }).toList());
+    ).add(meal);
+  }
+
+  Stream<List<Meal>> getMeals(String userUID) {
+    return _db.collection('user').doc(userUID).collection('meals')
+        .withConverter(
+          fromFirestore: Meal.fromFirestore,
+          toFirestore: (Meal meal, options) => meal.toFirestore()
+        ).snapshots().map((snapshot) => snapshot.docs.map((doc) {
+          final meal = doc.data();
+          return Meal(
+            foodIds: meal.foodIds,
+            id: doc.id,
+            name: meal.name,
+            foods: meal.foods
+          );
+        }).toList());
+  }
+
+  Future<void> updateMeal(String userUID, Meal meal) {
+    return _db.collection('user').doc(userUID).collection('meals')
+          .withConverter(
+            fromFirestore: Meal.fromFirestore,
+            toFirestore: (Meal meal, options) => meal.toFirestore()
+          ).doc(meal.id).update(meal.toFirestore());
+  }
+
+  Future<void> deleteMeal(String userUID, String mealID) {
+    return _db.collection('user').doc(userUID).collection('meals').doc(mealID).delete();
   }
 
   // Stream<List<MyMeal>> getUserMeals(String userUID) {
