@@ -81,9 +81,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     }).toList());
 
     _dbService.addMeal(_authService.user!.uid, Meal(foodIds: foodIds, name: name, foods: newEntries)).then((snapshot) {
-      setState(() {
-        _mealID = snapshot.id;
-      });
+      _undoUpdate();
       showDialog(context: context, builder: (context) {
         return const AlertDialog(
           title: Text('New meal added!'),

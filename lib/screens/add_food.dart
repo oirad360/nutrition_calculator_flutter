@@ -25,11 +25,40 @@ class _AddFoodState extends State<AddFood> {
     const DropdownMenuItem(value: UnitOfMeasure.ml, child: Text('ml')),
     const DropdownMenuItem(value: UnitOfMeasure.portion, child: Text('portions'))
   ];
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _caloriesController = TextEditingController();
+  final _fatController = TextEditingController();
+  final _carbsController = TextEditingController();
+  final _proteinController = TextEditingController();
+  final _quantityController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _food = widget.food??Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0);
+    _food = widget.food ?? Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0, description: '');
+    _nameController.text = _food.name;
+    _caloriesController.text = _food.calories.toString();
+    _fatController.text = _food.fat.toString();
+    _carbsController.text = _food.carbs.toString();
+    _proteinController.text = _food.protein.toString();
+    _quantityController.text = _food.quantity.toString();
+    _descriptionController.text = _food.description.toString();
+  }
+
+  _clearForm() {
+    setState(() {
+      _formKey.currentState?.reset();
+      _food = Food(name: '', quantity: 0, unitOfMeasure: UnitOfMeasure.g, calories: 0, fat: 0, carbs: 0, protein: 0, description: '');
+      _nameController.text = _food.name;
+      _caloriesController.text = _food.calories.toString();
+      _fatController.text = _food.fat.toString();
+      _carbsController.text = _food.carbs.toString();
+      _proteinController.text = _food.protein.toString();
+      _quantityController.text = _food.quantity.toString();
+      _descriptionController.text = _food.description.toString();
+    });
   }
 
   @override
@@ -62,7 +91,7 @@ class _AddFoodState extends State<AddFood> {
                 children: <Widget>[
                   MyTextInputFormField(
                     label: 'Name',
-                    initialValue: _food.name,
+                    controller:  _nameController,
                     maxLength: 50,
                     onChanged: (value) => {
                       setState(() {
@@ -73,7 +102,7 @@ class _AddFoodState extends State<AddFood> {
                   MyTextInputFormField(
                     label: 'Calories',
                     type: InputType.Decimal,
-                    initialValue: _food.calories.toString(),
+                    controller:  _caloriesController,
                     onChanged: (value) => {
                       setState(() {
                         _food.calories = value != '' ? double.parse(value!) : 0;
@@ -83,7 +112,7 @@ class _AddFoodState extends State<AddFood> {
                   MyTextInputFormField(
                     label: 'Fat',
                     type: InputType.Decimal,
-                    initialValue: _food.fat.toString(),
+                    controller:  _fatController,
                     onChanged: (value) => {
                       setState(() {
                         _food.fat = value != '' ? double.parse(value!) : 0;
@@ -93,7 +122,7 @@ class _AddFoodState extends State<AddFood> {
                   MyTextInputFormField(
                     label: 'Carbs',
                     type: InputType.Decimal,
-                    initialValue: _food.carbs.toString(),
+                    controller:  _carbsController,
                     onChanged: (value) => {
                       setState(() {
                         _food.carbs = value != '' ? double.parse(value!) : 0;
@@ -103,7 +132,7 @@ class _AddFoodState extends State<AddFood> {
                   MyTextInputFormField(
                     label: 'Protein',
                     type: InputType.Decimal,
-                    initialValue: _food.protein.toString(),
+                    controller:  _proteinController,
                     onChanged: (value) => {
                       setState(() {
                         _food.protein = value != '' ? double.parse(value!) : 0;
@@ -116,7 +145,7 @@ class _AddFoodState extends State<AddFood> {
                         child: MyTextInputFormField(
                           label: 'Quantity',
                           type: InputType.Decimal,
-                          initialValue: _food.quantity.toString(),
+                          controller:  _quantityController,
                           onChanged: (value) => {
                             setState(() {
                               _food.quantity = value != '' ? double.parse(value!) : 0;
@@ -143,7 +172,7 @@ class _AddFoodState extends State<AddFood> {
                   ),
                   MyTextInputFormField(
                     label: 'Description',
-                    initialValue: _food.description,
+                    controller: _descriptionController,
                     maxLength: 500,
                     maxLines: 10,
                     minLines: 1,
@@ -159,36 +188,53 @@ class _AddFoodState extends State<AddFood> {
           ),
         ),
       ),
-      floatingActionButton: _food.name != '' && _food.calories > 0 && _food.quantity > 0 &&
-          (_food.fat! > 0 || _food.carbs! > 0 || _food.protein! > 0) ?
-      FloatingActionButton(
-        onPressed: () {
-          if (_food.id != '') {
-            _dbService.updateFood(_authService.user!.uid, _food).then((snapshot) => {
-              showDialog(context: context, builder: (context) {
-                return const AlertDialog(
-                  title: Text('Food modified!'),
-                );
-              })
-            });
-          } else {
-            _dbService.addFood(_authService.user!.uid, _food).then((snapshot) => {
-              setState(() {
-                _food.id = snapshot.id;
-              }),
-              showDialog(context: context, builder: (context) {
-                return const AlertDialog(
-                  title: Text('New food added!'),
-                );
-              })
-            });
-          }
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          _food.id != '' ?
+              FloatingActionButton(
+                  onPressed: () {
+                    _clearForm();
+                  },
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                child: Icon(Icons.undo, color: Theme.of(context).colorScheme.primary,),
+                heroTag: 'clearFormButton',
+              ) :
+              const Offstage(),
+          Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+          _food.name != '' && _food.calories > 0 && _food.quantity > 0 &&
+              (_food.fat! > 0 || _food.carbs! > 0 || _food.protein! > 0) ?
+            FloatingActionButton(
+              onPressed: () {
+                if (_food.id != '') {
+                  _dbService.updateFood(_authService.user!.uid, _food).then((snapshot) => {
+                    showDialog(context: context, builder: (context) {
+                      return const AlertDialog(
+                        title: Text('Food modified!'),
+                      );
+                    })
+                  });
+                } else {
+                  _dbService.addFood(_authService.user!.uid, _food).then((snapshot) => {
+                    setState(() {
+                      _clearForm();
+                    }),
+                    showDialog(context: context, builder: (context) {
+                      return const AlertDialog(
+                        title: Text('New food added!'),
+                      );
+                    })
+                  });
+                }
 
-        },
-        tooltip: _food.id != '' ? 'Modify food' : 'Add food',
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: Icon(_food.id != '' ? Icons.border_color : Icons.check, color: Theme.of(context).colorScheme.primary),
-      ) : null,
+              },
+              tooltip: _food.id != '' ? 'Modify food' : 'Add food',
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              child: Icon(_food.id != '' ? Icons.border_color : Icons.check, color: Theme.of(context).colorScheme.primary),
+              heroTag: 'submitFormButton'
+            ) : const Offstage(),
+        ],
+      )
     );
   }
 }

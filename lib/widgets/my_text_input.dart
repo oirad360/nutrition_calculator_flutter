@@ -24,7 +24,8 @@ class MyTextInputFormField extends StatefulWidget {
     this.maxLength,
     this.maxLines,
     this.minLines,
-    this.counterValueVisibility
+    this.counterValueVisibility,
+    this.controller,
   });
 
   final EdgeInsetsGeometry padding;
@@ -42,6 +43,7 @@ class MyTextInputFormField extends StatefulWidget {
   final int? maxLines;
   final int? minLines;
   final int? counterValueVisibility;
+  final TextEditingController? controller;
 
   @override
   State<MyTextInputFormField> createState() => _MyTextInputFormFieldState();
@@ -58,11 +60,12 @@ class _MyTextInputFormFieldState extends State<MyTextInputFormField> {
       child: Stack(
         children: [
           TextFormField(
+            controller: widget.controller,
             maxLength: widget.maxLength,
             maxLines: widget.obscureText ? 1 : widget.maxLines,
             minLines: widget.obscureText ? 1 : widget.minLines ?? widget.maxLines,
             textCapitalization: TextCapitalization.sentences,
-            initialValue: widget.initialValue,
+            initialValue: widget.controller == null ? widget.initialValue : null,
             onChanged: (value) {
               setState(() {
                 _value = value;
