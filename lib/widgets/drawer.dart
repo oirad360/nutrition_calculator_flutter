@@ -22,7 +22,6 @@ class _MyDrawerState extends State<MyDrawer> {
         "res": Constants.OK
       };
     } on FirebaseAuthException catch (e) {
-      print(e);
       return {
         "res": Constants.KO,
         "code": e.code

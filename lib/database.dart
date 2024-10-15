@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:nutrition_calculator_flutter/models/my_meal.dart';
 import 'models/food.dart';
 import 'models/meal.dart';
 

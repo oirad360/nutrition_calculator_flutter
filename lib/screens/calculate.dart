@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/widgets/my_text_input.dart';
 import '../models/food.dart';
-import '../models/meal.dart';
 
 class Calculate extends StatefulWidget {
   Calculate({super.key, this.mealName = '', this.mealID = '', required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.updateMealName, required this.addMeal, this.foods, required this.updateMeal, required this.undoUpdate});

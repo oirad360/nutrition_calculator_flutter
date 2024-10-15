@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 class Constants {
   static const String appTitle = 'Nutrition Calculator';
   static const String OK = 'OK';

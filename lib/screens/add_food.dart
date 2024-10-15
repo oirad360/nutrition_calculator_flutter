@@ -197,11 +197,11 @@ class _AddFoodState extends State<AddFood> {
                     _clearForm();
                   },
                 backgroundColor: Theme.of(context).colorScheme.secondary,
-                child: Icon(Icons.undo, color: Theme.of(context).colorScheme.primary,),
                 heroTag: 'clearFormButton',
+                child: Icon(Icons.undo, color: Theme.of(context).colorScheme.primary,),
               ) :
               const Offstage(),
-          Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 10)),
           _food.name != '' && _food.calories > 0 && _food.quantity > 0 &&
               (_food.fat! > 0 || _food.carbs! > 0 || _food.protein! > 0) ?
             FloatingActionButton(
@@ -230,8 +230,8 @@ class _AddFoodState extends State<AddFood> {
               },
               tooltip: _food.id != '' ? 'Modify food' : 'Add food',
               backgroundColor: Theme.of(context).colorScheme.secondary,
-              child: Icon(_food.id != '' ? Icons.border_color : Icons.check, color: Theme.of(context).colorScheme.primary),
-              heroTag: 'submitFormButton'
+              heroTag: 'submitFormButton',
+              child: Icon(_food.id != '' ? Icons.border_color : Icons.check, color: Theme.of(context).colorScheme.primary)
             ) : const Offstage(),
         ],
       )
