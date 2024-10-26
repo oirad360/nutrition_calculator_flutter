@@ -28,6 +28,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   int _tabIndex = 0;
   List<Food> _foods = [];
   List<Map<String, dynamic>> _foodsCalculate = [];
+  final _mealNameController = TextEditingController();
+  final Map<String, TextEditingController> _calculateMealControllers = {};
 
   @override
   void initState() {
@@ -100,17 +102,22 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
-  void _fillUpdateMeal(Meal meal) {
+  void _fillUpdateMeal(Meal meal, bool isNew) {
     setState(() {
       _foodsCalculate = [];
+      _calculateMealControllers.clear();
       for (var element in meal.foods) {
         _foodsCalculate.add({
           'food': _foods.firstWhere((food) => food.id == element.foodId),
           'quantity': element.quantity
         });
+        _calculateMealControllers[element.foodId] = TextEditingController(text:
+          element.quantity - element.quantity.truncate() > 0 ? element.quantity.toString() : element.quantity.toInt().toString()
+        );
       }
       _mealName = meal.name;
-      _mealID = meal.id;
+      _mealID = !isNew ? meal.id : '';
+      _mealNameController.text = meal.name;
     });
     _tabController.animateTo(1);
     _tabIndex = 1;
@@ -142,6 +149,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     }).toList());
 
     _dbService.updateMeal(_authService.user!.uid, Meal(foodIds: foodIds, name: name, foods: newEntries, id: _mealID)).then((snapshot) {
+      _undoUpdate();
       showDialog(context: context, builder: (context) {
         return const AlertDialog(
           title: Text('Meal modified!'),
@@ -223,13 +231,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             _addMeal(_mealName, _foodsCalculate);
                           },
                           undoUpdate: _undoUpdate,
+                          mealNameController: _mealNameController,
+                          controllers: _calculateMealControllers,
                         )
                         else const Center(child: Text('Select a record from your food table to calculate a meal!', textAlign: TextAlign.center,)),
                         StreamBuilder(
                             stream: _dbService.getMeals(_authService.user!.uid),
                             builder: (context, mealSnapshot) {
                               if (mealSnapshot.hasData && mealSnapshot.data!.isNotEmpty) {
-                                return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data, deleteMeal: _deleteMeal, fillUpdateMeal: _fillUpdateMeal,);
+                                return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data, deleteMeal: _deleteMeal, fillUpdateMeal: _fillUpdateMeal);
                               } else if (mealSnapshot.hasData && mealSnapshot.data!.isEmpty) {
                                 return const Center(child: Text('You didn\'t save any meal!'));
                               }

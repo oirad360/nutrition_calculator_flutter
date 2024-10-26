@@ -3,7 +3,20 @@ import 'package:nutrition_calculator_flutter/widgets/my_text_input.dart';
 import '../models/food.dart';
 
 class Calculate extends StatefulWidget {
-  Calculate({super.key, this.mealName = '', this.mealID = '', required this.deleteFoodCalculate, required this.updateFoodCalculate, required this.updateMealName, required this.addMeal, this.foods, required this.updateMeal, required this.undoUpdate});
+  Calculate({
+    super.key,
+    this.mealName = '',
+    this.mealID = '',
+    required this.deleteFoodCalculate,
+    required this.updateFoodCalculate,
+    required this.updateMealName,
+    required this.addMeal,
+    this.foods,
+    required this.updateMeal,
+    required this.undoUpdate,
+    required this.mealNameController,
+    required this.controllers
+  });
 
   List<Map<String, dynamic>>? foods;
   String mealID;
@@ -14,6 +27,8 @@ class Calculate extends StatefulWidget {
   void Function() updateMeal;
   void Function() addMeal;
   void Function() undoUpdate;
+  TextEditingController mealNameController;
+  Map<String, TextEditingController> controllers;
 
   @override
   State<Calculate> createState() => _CalculateState();
@@ -67,7 +82,7 @@ class _CalculateState extends State<Calculate> {
               label: 'Insert a name to save this meal',
               border: const UnderlineInputBorder(),
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              initialValue: _mealName,
+              controller: widget.mealNameController,
               maxLength: 75,
               onChanged: (value) {
               setState(() {
@@ -95,7 +110,8 @@ class _CalculateState extends State<Calculate> {
                               },
                               type: InputType.Decimal,
                               border: const UnderlineInputBorder(),
-                              initialValue: quantity - quantity.truncate() > 0 ? quantity.toString() : quantity.toInt().toString(),)
+                              controller: widget.controllers[food.id],
+                            )
                           )
                         ],
                       ),
@@ -126,7 +142,7 @@ class _CalculateState extends State<Calculate> {
             }
           }, child: widget.mealID != '' ? const Icon(Icons.border_color) : const Icon(Icons.save)),
         ),
-        if (widget.mealID != '') Positioned(
+        Positioned(
           bottom: 130,
           right: 50,
           child: ElevatedButton(onPressed: () {
