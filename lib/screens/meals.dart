@@ -9,7 +9,7 @@ class Meals extends StatefulWidget {
   List<Food>? foods;
   void Function(String mealID) deleteMeal;
   void Function(Meal meal, bool isNew) fillUpdateMeal;
-  void Function(Meal meal) addMealToDiary;
+  void Function(String mealId) addMealToDiary;
 
   @override
   State<Meals> createState() => _MealsState();
@@ -95,7 +95,7 @@ class _MealsState extends State<Meals> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
                   child: TextButton(onPressed: () {
-                    widget.addMealToDiary(meal);
+                    widget.addMealToDiary(meal.id);
                   }, child: const Icon(Icons.book)),
                 ),
               ],

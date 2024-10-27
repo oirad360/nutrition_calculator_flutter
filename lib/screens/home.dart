@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/auth.dart';
 import 'package:nutrition_calculator_flutter/models/meal.dart';
@@ -6,6 +7,7 @@ import 'package:nutrition_calculator_flutter/screens/diary.dart';
 import 'package:nutrition_calculator_flutter/screens/food_table.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
 import 'package:nutrition_calculator_flutter/widgets/tab_horizontal.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
 import '../database.dart';
 import '../models/food.dart';
@@ -31,11 +33,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   List<Map<String, dynamic>> _foodsCalculate = [];
   final _mealNameController = TextEditingController();
   final Map<String, TextEditingController> _calculateMealControllers = {};
-  final List<Meal> _diary = [];
+  late final List<String> _diary;
 
   @override
   void initState() {
     super.initState();
+    _loadDiary();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabSelection);
   }
@@ -94,16 +97,18 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     });
   }
 
-  void _addMealToDiary(Meal meal) {
+  void _addMealToDiary(String mealId) {
     setState(() {
-      _diary.add(meal);
+      _diary.add(mealId);
     });
+    _saveDiary();
   }
 
   void _removeMealFromDiary(int index) {
     setState(() {
       _diary.removeAt(index);
     });
+    _saveDiary();
   }
 
   void _deleteMeal(String mealID) {
@@ -180,6 +185,26 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       _mealNameController.text = '';
       _calculateMealControllers.clear();
     });
+  }
+
+  Future<void> _loadDiary() async {
+    final prefs = await SharedPreferences.getInstance();
+    final mealsData = prefs.getString('diaryMeals');
+    if (mealsData != null) {
+      final List<dynamic> decodedData = jsonDecode(mealsData);
+      setState(() {
+        _diary = [];
+        for (var data in decodedData) {
+          _diary.add(data as String);
+        }
+      });
+    }
+  }
+
+  Future<void> _saveDiary() async {
+    final prefs = await SharedPreferences.getInstance();
+    final mealsData = jsonEncode(_diary.toList());
+    await prefs.setString('diaryMeals', mealsData);
   }
 
   @override
@@ -272,8 +297,28 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               return const Center(child: Text('You didn\'t save any meal!'));
                             }
                         ),
-                        if (_diary.isNotEmpty && _foods.isNotEmpty) Diary(meals: _diary, foods: _foods, removeMealFromDiary: _removeMealFromDiary)
-                        else const Center(child: Text('You didn\'t add any meal to your diary!'))
+                        StreamBuilder(
+                            stream: _dbService.getMeals(_authService.user!.uid),
+                            builder: (context, mealSnapshot) {
+                              if (mealSnapshot.hasData && mealSnapshot.data!.isNotEmpty && _diary.isNotEmpty) {
+                                return Diary(
+                                    meals: _diary.map((mealId) => mealSnapshot.data?.firstWhere((meal) => meal.id == mealId)).toList(),
+                                    foods: _foods,
+                                    removeMealFromDiary: _removeMealFromDiary
+                                );
+                              } else if (mealSnapshot.hasData && (mealSnapshot.data!.isEmpty || _diary.isNotEmpty)) {
+                                return const Center(child: Text('You didn\'t add any meal to your diary!'));
+                              }
+                              else if (mealSnapshot.connectionState == ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator(
+                                      color: Theme.of(context).colorScheme.primary,
+                                    )
+                                );
+                              }
+                              return const Center(child: Text('Login to see your diary!'));
+                            }
+                        ),
                       ]
                   );
                 }

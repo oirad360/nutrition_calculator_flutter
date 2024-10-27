@@ -6,7 +6,7 @@ import '../models/meal.dart';
 class Diary extends StatefulWidget {
   const Diary({super.key, required this.meals, required this.foods, required this.removeMealFromDiary});
 
-  final List<Meal> meals;
+  final List<Meal?> meals;
   final List<Food> foods;
   final void Function(int index) removeMealFromDiary;
 
@@ -32,13 +32,13 @@ class _DiaryState extends State<Diary> {
         'fat: ${fat - fat.truncate() > 0 ? fat.toStringAsFixed(2) : fat.toInt()}g, carbs: ${carbs - carbs.truncate() > 0 ? carbs.toStringAsFixed(2) : carbs.toInt()}g, protein: ${protein - protein.truncate() > 0 ? protein.toStringAsFixed(2) : protein.toInt()}g';
   }
 
-  String _calculateDiaryNutrition(List<Meal> meals) {
+  String _calculateDiaryNutrition(List<Meal?> meals) {
     double calories = 0;
     double fat = 0;
     double carbs = 0;
     double protein = 0;
     for (var meal in meals) {
-      for (var foodId in meal.foodIds) {
+      for (var foodId in meal!.foodIds) {
         final food = widget.foods.firstWhere((element) => element.id == foodId);
         final quantity = meal.foods.firstWhere((element) => element.foodId == foodId).quantity;
         calories += food.calories * (quantity / food.quantity);
@@ -90,7 +90,7 @@ class _DiaryState extends State<Diary> {
             itemCount: widget.meals.length,
             itemBuilder: (context, index) {
               final meal = widget.meals[index];
-              List<Widget> children = _buildFoodDetails(meal.foods);
+              List<Widget> children = _buildFoodDetails(meal!.foods);
               children.add(
                 Padding(
                   padding: const EdgeInsets.all(0),
