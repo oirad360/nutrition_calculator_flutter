@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/food.dart';
 import '../models/meal.dart';
@@ -15,7 +16,17 @@ class Meals extends StatefulWidget {
   State<Meals> createState() => _MealsState();
 }
 
-class _MealsState extends State<Meals> {
+class _MealsState extends State<Meals> with AutomaticKeepAliveClientMixin {
+  String? _query;
+  List<Meal> _filterMeals() {
+    if (_query == null || _query!.isEmpty) {
+      return widget.meals ?? [];
+    }
+    return widget.meals!
+        .where((meal) => meal.name.toLowerCase().contains(_query!.toLowerCase()))
+        .toList();
+  }
+
   String _calculateMealNutrition(List<FoodCalculate> foodCalculate) {
     double calories = 0;
     double fat = 0;
@@ -64,50 +75,74 @@ class _MealsState extends State<Meals> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: widget.meals!.map((meal) {
-        List<Widget> children = _buildFoodDetails(meal.foods);
-        children.add(
-          Padding(
-            padding: const EdgeInsets.all(0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
-                  child: TextButton(onPressed: () {
-                    widget.fillUpdateMeal(meal, false);
-                  }, child: const Icon(Icons.border_color)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
-                  child: TextButton(onPressed: () {
-                    widget.fillUpdateMeal(meal, true);
-                  }, child: const Icon(Icons.copy)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
-                  child: TextButton(onPressed: () {
-                    widget.deleteMeal(meal.id);
-                  }, child: const Icon(Icons.delete_forever)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
-                  child: TextButton(onPressed: () {
-                    widget.addMealToDiary(meal.id);
-                  }, child: const Icon(Icons.book)),
-                ),
-              ],
+    super.build(context);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SearchBar(
+            leading: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.search),
             ),
+            onChanged: (query) {
+              setState(() {
+                _query = query;
+              });
+            },
           ),
-        );
-        return ExpansionTile(
-          title: Text(meal.name, style: const TextStyle(fontWeight: FontWeight.bold),),
-          subtitle: Text(_calculateMealNutrition(meal.foods)),
-          children: children,
-        );
-      }).toList(),
+        ),
+        Expanded(
+          child: ListView(
+            children: _filterMeals().map((meal) {
+              List<Widget> children = _buildFoodDetails(meal.foods);
+              children.add(
+                Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                        child: TextButton(onPressed: () {
+                          widget.fillUpdateMeal(meal, false);
+                        }, child: const Icon(Icons.border_color)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                        child: TextButton(onPressed: () {
+                          widget.fillUpdateMeal(meal, true);
+                        }, child: const Icon(Icons.copy)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                        child: TextButton(onPressed: () {
+                          widget.deleteMeal(meal.id);
+                        }, child: const Icon(Icons.delete_forever)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                        child: TextButton(onPressed: () {
+                          widget.addMealToDiary(meal.id);
+                        }, child: const Icon(Icons.book)),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+              return ExpansionTile(
+                title: Text(meal.name, style: const TextStyle(fontWeight: FontWeight.bold),),
+                subtitle: Text(_calculateMealNutrition(meal.foods)),
+                children: children,
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 }
