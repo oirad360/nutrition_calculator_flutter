@@ -3,19 +3,20 @@ import '../models/food.dart';
 import '../models/meal.dart';
 
 class Meals extends StatefulWidget {
-  Meals({super.key, required this.meals, required this.foods, required this.deleteMeal, required this.fillUpdateMeal});
+  Meals({super.key, required this.meals, required this.foods, required this.deleteMeal, required this.fillUpdateMeal, required this.addMealToDiary});
 
   List<Meal>? meals;
   List<Food>? foods;
   void Function(String mealID) deleteMeal;
   void Function(Meal meal, bool isNew) fillUpdateMeal;
+  void Function(Meal meal) addMealToDiary;
 
   @override
   State<Meals> createState() => _MealsState();
 }
 
 class _MealsState extends State<Meals> {
-  String _calculateNutrition(List<FoodCalculate> foodCalculate) {
+  String _calculateMealNutrition(List<FoodCalculate> foodCalculate) {
     double calories = 0;
     double fat = 0;
     double carbs = 0;
@@ -91,13 +92,19 @@ class _MealsState extends State<Meals> {
                     widget.deleteMeal(meal.id);
                   }, child: const Icon(Icons.delete_forever)),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  child: TextButton(onPressed: () {
+                    widget.addMealToDiary(meal);
+                  }, child: const Icon(Icons.book)),
+                ),
               ],
             ),
           ),
         );
         return ExpansionTile(
           title: Text(meal.name, style: const TextStyle(fontWeight: FontWeight.bold),),
-          subtitle: Text(_calculateNutrition(meal.foods)),
+          subtitle: Text(_calculateMealNutrition(meal.foods)),
           children: children,
         );
       }).toList(),

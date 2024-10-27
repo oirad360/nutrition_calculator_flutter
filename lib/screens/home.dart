@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nutrition_calculator_flutter/auth.dart';
 import 'package:nutrition_calculator_flutter/models/meal.dart';
 import 'package:nutrition_calculator_flutter/screens/calculate.dart';
+import 'package:nutrition_calculator_flutter/screens/diary.dart';
 import 'package:nutrition_calculator_flutter/screens/food_table.dart';
 import 'package:nutrition_calculator_flutter/widgets/drawer.dart';
 import 'package:nutrition_calculator_flutter/widgets/tab_horizontal.dart';
@@ -30,11 +31,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   List<Map<String, dynamic>> _foodsCalculate = [];
   final _mealNameController = TextEditingController();
   final Map<String, TextEditingController> _calculateMealControllers = {};
+  final List<Meal> _diary = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabSelection);
   }
 
@@ -89,6 +91,18 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           title: Text('New meal added!'),
         );
       });
+    });
+  }
+
+  void _addMealToDiary(Meal meal) {
+    setState(() {
+      _diary.add(meal);
+    });
+  }
+
+  void _removeMealFromDiary(int index) {
+    setState(() {
+      _diary.removeAt(index);
     });
   }
 
@@ -197,6 +211,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   TabHorizontal(icon: Icons.table_chart, text: 'Food Table'),
                   TabHorizontal(icon: Icons.calculate, text: 'Calculate'),
                   TabHorizontal(icon: Icons.food_bank_rounded, text: 'Meals'),
+                  TabHorizontal(icon: Icons.book, text: 'Diary'),
                 ],
               ),
             ),
@@ -239,7 +254,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             stream: _dbService.getMeals(_authService.user!.uid),
                             builder: (context, mealSnapshot) {
                               if (mealSnapshot.hasData && mealSnapshot.data!.isNotEmpty) {
-                                return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data, deleteMeal: _deleteMeal, fillUpdateMeal: _fillUpdateMeal);
+                                return Meals(meals: mealSnapshot.data, foods: foodSnapshot.data, deleteMeal: _deleteMeal, fillUpdateMeal: _fillUpdateMeal, addMealToDiary: _addMealToDiary,);
                               } else if (mealSnapshot.hasData && mealSnapshot.data!.isEmpty) {
                                 return const Center(child: Text('You didn\'t save any meal!'));
                               }
@@ -253,6 +268,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               return const Center(child: Text('You didn\'t save any meal!'));
                             }
                         ),
+                        if (_diary.isNotEmpty && _foods.isNotEmpty) Diary(meals: _diary, foods: _foods, removeMealFromDiary: _removeMealFromDiary)
+                        else const Center(child: Text('You didn\'t add any meal to your diary!'))
                       ]
                   );
                 }
@@ -268,6 +285,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                   ),
                   Center(
                     child: Text('Login to show your meals!'),
+                  ),
+                  Center(
+                    child: Text('Login to show your diary!'),
                   ),
                 ]
             ),
