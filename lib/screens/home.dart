@@ -177,6 +177,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       _mealID = '';
       _mealName = '';
       _foodsCalculate = [];
+      _mealNameController.text = '';
+      _calculateMealControllers.clear();
     });
   }
 
@@ -203,7 +205,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 },
               ),
               bottom: TabBar(
+                isScrollable: true,
                 controller: _tabController,
+                tabAlignment: TabAlignment.start,
                 labelPadding: const EdgeInsets.symmetric(horizontal: 10),
                 unselectedLabelColor: Colors.black45,
                 labelColor: Theme.of(context).colorScheme.secondary,

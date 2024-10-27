@@ -72,28 +72,28 @@ class _MealsState extends State<Meals> {
           Padding(
             padding: const EdgeInsets.all(0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
                   child: TextButton(onPressed: () {
                     widget.fillUpdateMeal(meal, false);
                   }, child: const Icon(Icons.border_color)),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
                   child: TextButton(onPressed: () {
                     widget.fillUpdateMeal(meal, true);
                   }, child: const Icon(Icons.copy)),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
                   child: TextButton(onPressed: () {
                     widget.deleteMeal(meal.id);
                   }, child: const Icon(Icons.delete_forever)),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
                   child: TextButton(onPressed: () {
                     widget.addMealToDiary(meal);
                   }, child: const Icon(Icons.book)),
