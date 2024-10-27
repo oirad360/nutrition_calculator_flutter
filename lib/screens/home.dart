@@ -306,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                     foods: _foods,
                                     removeMealFromDiary: _removeMealFromDiary
                                 );
-                              } else if (mealSnapshot.hasData && (mealSnapshot.data!.isEmpty || _diary.isNotEmpty)) {
+                              } else if (mealSnapshot.hasData && (mealSnapshot.data!.isEmpty || _diary.isEmpty)) {
                                 return const Center(child: Text('You didn\'t add any meal to your diary!'));
                               }
                               else if (mealSnapshot.connectionState == ConnectionState.waiting) {
@@ -316,7 +316,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                     )
                                 );
                               }
-                              return const Center(child: Text('Login to see your diary!'));
+                              return const Center(child: Text('You didn\'t add any meal to your diary!'));
                             }
                         ),
                       ]
